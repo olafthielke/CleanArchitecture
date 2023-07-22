@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\Data.Proxy\Data.Proxy.csproj" />
+    <ProjectReference Include="..\Data.Redis.Common\Data.Redis.Common.csproj" />
+    <ProjectReference Include="..\Data.Redis.Specific\Data.Redis.Specific.csproj" />
+    <ProjectReference Include="..\Data.SqlServer.Specific\Data.SqlServer.Specific.csproj" />
+  </ItemGroup>
+
+
+</Project>

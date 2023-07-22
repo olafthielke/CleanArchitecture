@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\Data.Proxy\Data.Proxy.csproj" />
+    <ProjectReference Include="..\Data.Redis.Specific\Data.Redis.Specific.csproj" />
+    <ProjectReference Include="..\Data.SqlServer.Specific\Data.SqlServer.Specific.csproj" />
+  </ItemGroup>
+
+</Project>
