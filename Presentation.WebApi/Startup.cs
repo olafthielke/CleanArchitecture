@@ -35,7 +35,7 @@ namespace Presentation.WebApi
 
             // Uncomment only one of the 6 numbered and separated blocks to radically alter 
             // the behaviour of the customer data persistence mechanisms, from a simple
-            // in-memory database, up to a Redis cache / SQL database combination. 
+            // in-memory database, up to a Redis cache / SQL database combination.
 
             // -----------------------------------------------------------------------------
 
@@ -44,14 +44,14 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            //// 2. *** REPO: SQL Server DB ***
-            //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
-            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            //// 2. *** REPO: JSON File ***
+            //services.AddSingleton<ICustomerRepository, JsonCustomerFile>();
 
             // -----------------------------------------------------------------------------
 
-            //// 3. *** REPO: JSON File ***
-            //services.AddSingleton<ICustomerRepository, JsonCustomerFile>();
+            //// 3. *** REPO: SQL Server DB ***
+            //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
+            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
