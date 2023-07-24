@@ -86,33 +86,33 @@ namespace Tests.Presentation
         }
 
 
-        private CustomersController SetupController(Customer customer = null)
+        private static CustomersController SetupController(Customer customer = null)
         {
             var useCase = new MockRegisterCustomerUseCase(customer);
             return new CustomersController(null, useCase);
         }
 
-        private CustomersController SetupController(Exception exception)
+        private static CustomersController SetupController(Exception exception)
         {
             var useCase = new MockRegisterCustomerUseCase(exception);
             return new CustomersController(null, useCase);
         }
 
 
-        private void VerifyCallUseCase(CustomersController controller, CustomerRegistration rego)
+        private static void VerifyCallUseCase(CustomersController controller, CustomerRegistration rego)
         {
             var useCase = (MockRegisterCustomerUseCase)controller.RegisterUseCase;
             useCase.WasRegisterCalled.Should().BeTrue();
             useCase.PassedInRegistration.Should().BeEquivalentTo(rego);
         }
 
-        private void VerifyOkResult<T>(IActionResult result, T t)
+        private static void VerifyOkResult<T>(IActionResult result, T t)
         {
             var okResult = result as OkObjectResult;
             okResult.Value.Should().BeEquivalentTo(t);
         }
 
-        private void VerifyBadRequestResult(IActionResult result, string message)
+        private static void VerifyBadRequestResult(IActionResult result, string message)
         {
             var badRequestResult = result as BadRequestObjectResult;
             badRequestResult.Value.Should().BeEquivalentTo(message);
