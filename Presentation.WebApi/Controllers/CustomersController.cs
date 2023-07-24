@@ -70,13 +70,15 @@ namespace Presentation.WebApi.Controllers
         {
             await Task.CompletedTask;
 
-            if (ex is ClientInputException)
-                return BadRequest(ex.Message);
-            if (ex is NotFoundException)
-                return NotFound();
+            return ex switch
+            {
+                ValidationException valEx => BadRequest(valEx.Errors),
+                ClientInputException => BadRequest(new[] { ex.Message }),
+                NotFoundException => NotFound(),
+                _ => throw ex   // ... otherwise rethrow and generate a 500 - Internal Server Error
+            };
 
-            throw ex; // Rethrow anything else, which will end up being unhandled
-                      // and generate a 500 - Internal Server Error
+           
         }
     }
 }

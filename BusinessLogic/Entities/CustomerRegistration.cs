@@ -20,12 +20,17 @@ namespace BusinessLogic.Entities
 
         public void Validate()
         {
+            var errors = new ValidationException();
+            
             if (string.IsNullOrWhiteSpace(FirstName))
-                throw new MissingFirstName();
+                errors.Add("Missing first name.");
             if (string.IsNullOrWhiteSpace(LastName))
-                throw new MissingLastName();
+                errors.Add("Missing last name.");
             if (string.IsNullOrWhiteSpace(EmailAddress))
-                throw new MissingEmailAddress();
+                errors.Add("Missing email address.");
+
+            if (errors.HasErrors)
+                throw errors;
         }
 
         public Customer ToCustomer()

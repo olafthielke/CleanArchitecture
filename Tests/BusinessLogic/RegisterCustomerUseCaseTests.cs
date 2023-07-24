@@ -26,7 +26,7 @@ namespace Tests.BusinessLogic
             var useCase = SetupUseCase();
             var register = () => useCase.RegisterCustomer(null);
             await register.Should().ThrowExactlyAsync<MissingCustomerRegistration>()
-                          .Where(x => x.Message == "Missing customer registration data.");
+                .Where(x => x.Message == "Missing customer registration data.");
         }
 
         [Theory]
@@ -35,13 +35,15 @@ namespace Tests.BusinessLogic
         [InlineData(" ")]
         [InlineData("   ")]
         [InlineData(" \r\n  ")]
-        public async Task Given_Missing_FirstName_When_Call_RegisterCustomer_Then_Throw_MissingFirstName(string firstName)
+        public async Task Given_Missing_FirstName_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string firstName)
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration(firstName, "Smith", "bob@smith.com");
             var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowAsync<MissingFirstName>()
-                          .Where(x => x.Message == "Missing first name.");
+            await register.Should().ThrowExactlyAsync<ValidationException>()
+                .Where(x => x.HasErrors)
+                .Where(x => x.ErrorCount == 1)
+                .Where(x => x.Errors[0] == "Missing first name.");
         }
 
         [Theory]
@@ -50,13 +52,15 @@ namespace Tests.BusinessLogic
         [InlineData(" ")]
         [InlineData("  ")]
         [InlineData("  \t \v ")]
-        public async Task Given_Missing_LastName_When_Call_RegisterCustomer_Then_Throw_MissingLastName(string lastName)
+        public async Task Given_Missing_LastName_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string lastName)
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration("Bob", lastName, "bob@smith.com");
             var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowAsync<MissingLastName>()
-                          .Where(x => x.Message == "Missing last name.");
+            await register.Should().ThrowExactlyAsync<ValidationException>()
+                .Where(x => x.HasErrors)
+                .Where(x => x.ErrorCount == 1)
+                .Where(x => x.Errors[0] == "Missing last name.");
         }
 
         [Theory]
@@ -65,13 +69,29 @@ namespace Tests.BusinessLogic
         [InlineData(" ")]
         [InlineData("       ")]
         [InlineData(" \r\n \t \v ")]
-        public async Task Given_Missing_EmailAddress_When_Call_RegisterCustomer_Then_Throw_MissingEmailAddress(string emailAddress)
+        public async Task Given_Missing_EmailAddress_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string emailAddress)
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration("Bob", "Smith", emailAddress);
             var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowAsync<MissingEmailAddress>()
-                          .Where(x => x.Message == "Missing email address.");
+            await register.Should().ThrowExactlyAsync<ValidationException>()
+                .Where(x => x.HasErrors)
+                .Where(x => x.ErrorCount == 1)
+                .Where(x => x.Errors[0] == "Missing email address.");
+        }
+
+        [Fact]
+        public async Task Given_Missing_Multiple_Customer_Fields_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Errors()
+        {
+            var useCase = SetupUseCase();
+            var registration = new CustomerRegistration(null, "  ", "");
+            var register = () => useCase.RegisterCustomer(registration);
+            await register.Should().ThrowExactlyAsync<ValidationException>()
+                .Where(x => x.HasErrors)
+                .Where(x => x.ErrorCount == 3)
+                .Where(x => x.Errors[0] == "Missing first name.")
+                .Where(x => x.Errors[1] == "Missing last name.")
+                .Where(x => x.Errors[2] == "Missing email address.");
         }
 
         [Theory]

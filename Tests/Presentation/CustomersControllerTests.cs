@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using FluentAssertions;
 using BusinessLogic.Entities;
+using BusinessLogic.Exceptions;
 using Presentation.WebApi.Controllers;
 using Presentation.WebApi.Models;
 using Tests.Fakes.BusinessLogic;
@@ -48,11 +49,22 @@ namespace Tests.Presentation
         [Theory]
         [InlineData("Client Input Error")]
         [InlineData("a different error message")]
-        public async Task Given_UseCase_Throws_ClientInputException_When_Call_Register_Then_Return_400_BadRequest(string errorMsg)
+        public async Task Given_UseCase_Throws_Simple_ClientInputException_When_Call_Register_Then_Return_400_BadRequest(string errorMsg)
         {
             var controller = SetupController(new DummyClientInputException(errorMsg));
             var result = await controller.Register(ApiRegoAdamAnt);
             VerifyBadRequestResult(result, errorMsg);
+        }
+
+        [Theory]
+        [InlineData("Error 1")]
+        [InlineData("Error 1", "Error 2")]
+        [InlineData("Error 1", "Error 2", "Error 3")]
+        public async Task Given_UseCase_Throws_ValidationException_When_Call_Register_Then_Return_400_BadRequest_With_Messages(params string[] errorMsgs)
+        {
+            var controller = SetupController(new ValidationException(errorMsgs));
+            var result = await controller.Register(ApiRegoAdamAnt);
+            VerifyBadRequestResult(result, errorMsgs);
         }
 
         //[Fact]
@@ -112,10 +124,10 @@ namespace Tests.Presentation
             okResult.Value.Should().BeEquivalentTo(t);
         }
 
-        private static void VerifyBadRequestResult(IActionResult result, string message)
+        private static void VerifyBadRequestResult(IActionResult result, params string[] messages)
         {
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().BeEquivalentTo(message);
+            badRequestResult.Value.Should().BeEquivalentTo(messages);
         }
     }
 }
