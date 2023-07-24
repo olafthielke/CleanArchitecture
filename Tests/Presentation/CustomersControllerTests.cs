@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Http.Results;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using FluentAssertions;
@@ -117,12 +116,6 @@ namespace Tests.Presentation
         {
             var badRequestResult = result as BadRequestObjectResult;
             badRequestResult.Value.Should().BeEquivalentTo(message);
-        }
-
-        private void VerifyInternalServerErrorResult(IActionResult result)
-        {
-            var internalServerErrorResult = result as InternalServerErrorResult;
-            internalServerErrorResult.Should().NotBeNull();
         }
     }
 }
