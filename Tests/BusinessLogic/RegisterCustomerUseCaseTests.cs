@@ -24,9 +24,8 @@ namespace Tests.BusinessLogic
         public async Task Given_No_CustomerRegistration_When_Call_RegisterCustomer_Then_Throw_MissingCustomerRegistration()
         {
             var useCase = SetupUseCase();
-            var register = () => useCase.RegisterCustomer(null);
-            await register.Should().ThrowExactlyAsync<MissingCustomerRegistration>()
-                .Where(x => x.Message == "Missing customer registration data.");
+            Task<Customer> Register() => useCase.RegisterCustomer(null);
+            await ThrowsMissingCustomerRegistration(Register);
         }
 
         [Theory]
@@ -39,12 +38,10 @@ namespace Tests.BusinessLogic
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration(firstName, "Smith", "bob@smith.com");
-            var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowExactlyAsync<ValidationException>()
-                .Where(x => x.HasErrors)
-                .Where(x => x.ErrorCount == 1)
-                .Where(x => x.Errors[0] == "Missing first name.");
+            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            await ThrowsValidationExceptionWithSingleError(Register, "Missing first name.");
         }
+
 
         [Theory]
         [InlineData(null)]
@@ -56,11 +53,8 @@ namespace Tests.BusinessLogic
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration("Bob", lastName, "bob@smith.com");
-            var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowExactlyAsync<ValidationException>()
-                .Where(x => x.HasErrors)
-                .Where(x => x.ErrorCount == 1)
-                .Where(x => x.Errors[0] == "Missing last name.");
+            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            await ThrowsValidationExceptionWithSingleError(Register, "Missing last name.");
         }
 
         [Theory]
@@ -73,11 +67,8 @@ namespace Tests.BusinessLogic
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration("Bob", "Smith", emailAddress);
-            var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowExactlyAsync<ValidationException>()
-                .Where(x => x.HasErrors)
-                .Where(x => x.ErrorCount == 1)
-                .Where(x => x.Errors[0] == "Missing email address.");
+            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            await ThrowsValidationExceptionWithSingleError(Register, "Missing email address.");
         }
 
         [Fact]
@@ -85,13 +76,9 @@ namespace Tests.BusinessLogic
         {
             var useCase = SetupUseCase();
             var registration = new CustomerRegistration(null, "  ", "");
-            var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowExactlyAsync<ValidationException>()
-                .Where(x => x.HasErrors)
-                .Where(x => x.ErrorCount == 3)
-                .Where(x => x.Errors[0] == "Missing first name.")
-                .Where(x => x.Errors[1] == "Missing last name.")
-                .Where(x => x.Errors[2] == "Missing email address.");
+            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            await VerifyThrowsValidationException(Register, 
+                "Missing first name.", "Missing last name.", "Missing email address.");
         }
 
         [Theory]
@@ -109,10 +96,8 @@ namespace Tests.BusinessLogic
             Customer customer)
         {
             var useCase = SetupUseCase(customer);
-            var register = () => useCase.RegisterCustomer(registration);
-            await register.Should().ThrowAsync<DuplicateCustomerEmailAddress>()
-                          .Where(x => x.EmailAddress == customer.EmailAddress)
-                          .Where(x => x.Message == $"The email address '{customer.EmailAddress}' already exists in the system.");
+            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            await ThrowsDuplicateCustomerEmailAddress(customer, Register);
         }
 
         [Theory]
@@ -161,12 +146,43 @@ namespace Tests.BusinessLogic
         }
 
 
+        private static async Task ThrowsMissingCustomerRegistration(Func<Task<Customer>> register)
+        {
+            await register.Should().ThrowExactlyAsync<MissingCustomerRegistration>()
+                .Where(x => x.Message == "Missing customer registration data.");
+        }
+
+        private static async Task ThrowsValidationExceptionWithSingleError(Func<Task<Customer>> register, string error)
+        {
+            await register.Should().ThrowExactlyAsync<ValidationException>()
+                .Where(x => x.HasErrors)
+                .Where(x => x.ErrorCount == 1)
+                .Where(x => x.Errors[0] == error);
+        }
+
+        private static async Task VerifyThrowsValidationException(Func<Task<Customer>> register, params string[] errors)
+        {
+            await register.Should().ThrowExactlyAsync<ValidationException>()
+                .Where(x => x.HasErrors)
+                .Where(x => x.ErrorCount == errors.Length)
+                .Where(x => x.Errors[0] == errors[0])
+                .Where(x => x.Errors[1] == errors[1])
+                .Where(x => x.Errors[2] == errors[2]);
+        }
+
         private static void VerifyCallRepositoryGetCustomerByEmailAddress(RegisterCustomerUseCase useCase,
             CustomerRegistration registration)
         {
             var repository = (MockCustomerRepository)useCase.Repository;
             repository.WasGetCustomerCalled.Should().BeTrue();
             repository.PassedInEmailAddress.Should().Be(registration.EmailAddress);
+        }
+
+        private static async Task ThrowsDuplicateCustomerEmailAddress(Customer customer, Func<Task<Customer>> register)
+        {
+            await register.Should().ThrowAsync<DuplicateCustomerEmailAddress>()
+                .Where(x => x.EmailAddress == customer.EmailAddress)
+                .Where(x => x.Message == $"The email address '{customer.EmailAddress}' already exists in the system.");
         }
 
         private static void VerifyConvertRegistrationToCustomer(CustomerRegistration registration, Customer customer)
