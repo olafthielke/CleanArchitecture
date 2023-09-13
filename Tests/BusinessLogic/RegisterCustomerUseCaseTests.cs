@@ -119,8 +119,8 @@ namespace Tests.BusinessLogic
         }
 
 
-        private static readonly CustomerRegistration RegoAdamAnt = new CustomerRegistration("Adam", "Ant", "adam@ant.co.uk");
-        private static readonly CustomerRegistration RegoBobSmith = new CustomerRegistration("Bob", "Smith", "bob@smith.com");
+        private static readonly CustomerRegistration RegoAdamAnt = new ("Adam", "Ant", "adam@ant.co.uk");
+        private static readonly CustomerRegistration RegoBobSmith = new ("Bob", "Smith", "bob@smith.com");
 
 
         public static IEnumerable<object[]> GetRegistrations()
@@ -129,8 +129,8 @@ namespace Tests.BusinessLogic
             yield return new object[] { RegoBobSmith };
         }
 
-        private static readonly Customer CustomerAdamAnt = new Customer(Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk");
-        private static readonly Customer CustomerBobSmith = new Customer(Guid.NewGuid(), "Bob", "Smith", "bob@smith.com");
+        private static readonly Customer CustomerAdamAnt = new (Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk");
+        private static readonly Customer CustomerBobSmith = new (Guid.NewGuid(), "Bob", "Smith", "bob@smith.com");
 
         public static IEnumerable<object[]> GetRegistrationsWithCustomers()
         {
