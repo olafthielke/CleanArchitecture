@@ -10,6 +10,8 @@
     <ProjectReference Include="..\Data.Proxy\Data.Proxy.csproj" />
     <ProjectReference Include="..\Data.Redis.Specific\Data.Redis.Specific.csproj" />
     <ProjectReference Include="..\Data.SqlServer.Specific\Data.SqlServer.Specific.csproj" />
+    <ProjectReference Include="..\Notification.Email.Aws\Notification.Email.Aws.csproj" />
+    <ProjectReference Include="..\Notification.Email\Notification.Email.csproj" />
   </ItemGroup>
 
 </Project>

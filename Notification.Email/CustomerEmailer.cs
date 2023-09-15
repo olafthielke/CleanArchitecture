@@ -31,6 +31,7 @@ namespace Notification.Email
 
             // TODO: Replace placeholders with customer info. 
 
+
             var email = new MailMessage(Config.FromEmailAddress, 
                 customer.EmailAddress, 
                 template.Subject, 

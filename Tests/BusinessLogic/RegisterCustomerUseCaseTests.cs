@@ -6,6 +6,7 @@ using FluentAssertions;
 using BusinessLogic.Entities;
 using BusinessLogic.Exceptions;
 using BusinessLogic.UseCases;
+using Tests.Fakes.BusinessLogic;
 using Tests.Fakes.Data;
 
 namespace Tests.BusinessLogic
@@ -118,6 +119,16 @@ namespace Tests.BusinessLogic
             VerifySaveCustomerToRepository(useCase, customer);
         }
 
+        [Theory]
+        [MemberData(nameof(GetRegistrations))]
+        public async Task Given_Successful_Customer_Registration_When_Call_RegisterCustomer_Then_Send_Customer_Welcome_Message(CustomerRegistration reg)
+        {
+            var useCase = SetupUseCase();
+            var customer = await useCase.RegisterCustomer(reg);
+            VerifySendCustomerWelcomeMessage(useCase, customer);
+        }
+
+
 
         private static readonly CustomerRegistration RegoAdamAnt = new ("Adam", "Ant", "adam@ant.co.uk");
         private static readonly CustomerRegistration RegoBobSmith = new ("Bob", "Smith", "bob@smith.com");
@@ -142,7 +153,8 @@ namespace Tests.BusinessLogic
         private static RegisterCustomerUseCase SetupUseCase(Customer customer = null)
         {
             var repository = new MockCustomerRepository(customer);
-            return new RegisterCustomerUseCase(repository);
+            var messageService = new MockCustomerNotifier();
+            return new RegisterCustomerUseCase(repository, messageService);
         }
 
 
@@ -197,6 +209,13 @@ namespace Tests.BusinessLogic
             var repository = (MockCustomerRepository)useCase.Repository;
             repository.WasSaveCustomerCalled.Should().BeTrue();
             repository.PassedInCustomer.Should().BeEquivalentTo(customer);
+        }
+
+        private static void VerifySendCustomerWelcomeMessage(RegisterCustomerUseCase useCase, Customer customer)
+        {
+            var notifier = (MockCustomerNotifier)useCase.Notifier;
+            notifier.WasSendWelcomeMessageCalled.Should().BeTrue();
+            notifier.PassedInCustomer.Should().Be(customer);
         }
     }
 }

@@ -11,6 +11,9 @@ namespace Notification.SMS
         public async Task SendWelcomeMessage(Customer customer)
         {
             // TODO: Send an SMS/Txt Welcome message to the new customer.
+
+
+
         }
     }
 }

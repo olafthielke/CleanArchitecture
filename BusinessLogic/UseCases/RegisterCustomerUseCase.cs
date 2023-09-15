@@ -8,11 +8,13 @@ namespace BusinessLogic.UseCases
     public class RegisterCustomerUseCase : IRegisterCustomerUseCase
     {
         public ICustomerRepository Repository { get; }
+        public ICustomerNotifier Notifier { get; }
 
 
-        public RegisterCustomerUseCase(ICustomerRepository repository)
+        public RegisterCustomerUseCase(ICustomerRepository repository, ICustomerNotifier notifier)
         {
             Repository = repository;
+            Notifier = notifier;
         }
 
 
@@ -21,6 +23,7 @@ namespace BusinessLogic.UseCases
             await Validate(reg);
             var customer = reg.ToCustomer();
             await Repository.SaveCustomer(customer);
+            await Notifier.SendWelcomeMessage(customer);
             return customer;
         }
 
