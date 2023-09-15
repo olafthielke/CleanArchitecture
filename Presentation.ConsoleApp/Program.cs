@@ -7,8 +7,7 @@ using Data.Redis.Common;
 using Data.Redis.Specific;
 using Data.SqlServer.Specific;
 using Notification.Email;
-using Notification.Email.Aws;
-using Notification.Email.Interfaces;
+
 
 namespace Presentation.ConsoleApp
 {
@@ -46,8 +45,7 @@ namespace Presentation.ConsoleApp
         private static RegisterCustomerUseCase SetupRegisterCustomerUseCase()
         {
             var repository = SetupCustomerRepository();
-            var notifier = SetupCustomerNotifier();
-            return new RegisterCustomerUseCase(repository, notifier);
+            return new RegisterCustomerUseCase(repository, null);
         }
 
         private static ICustomerRepository SetupCustomerRepository()
@@ -74,37 +72,6 @@ namespace Presentation.ConsoleApp
         private static ICustomerRepository SetupCachedCustomerRepository(ICustomerDatabase database, ICustomerCache cache)
         {
             return new CachedCustomerRepository(database, cache);
-        }
-
-
-        private static ICustomerNotifier SetupCustomerNotifier()
-        {
-            var emailer = SetupEmailer();
-            var emailConfig = SetupEmailConfiguration();
-            var emailTemplates = SetupEmailTemplateRepository();
-            return SetupCustomerEmailer(emailer, emailConfig, emailTemplates);
-        }
-
-        private static IEmailer SetupEmailer()
-        {
-            return new AwsEmailer();
-        }
-
-        private static IEmailConfiguration SetupEmailConfiguration()
-        {
-            return null;
-        }
-
-        private static IEmailTemplateRepository SetupEmailTemplateRepository()
-        {
-            return null;
-        }
-
-        private static ICustomerNotifier SetupCustomerEmailer(IEmailer emailer,
-            IEmailConfiguration emailConfig, 
-            IEmailTemplateRepository emailTemplates)
-        {
-            return new CustomerEmailer(emailer, emailConfig, emailTemplates);
         }
 
         private static void LogCustomer(Customer customer)

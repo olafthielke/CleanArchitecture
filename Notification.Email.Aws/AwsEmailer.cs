@@ -4,11 +4,10 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
-using Notification.Email.Interfaces;
 
 namespace Notification.Email.Aws
 {
-    public class AwsEmailer : IEmailer
+    public class AwsEmailer
     {
         // Work in Progress
 

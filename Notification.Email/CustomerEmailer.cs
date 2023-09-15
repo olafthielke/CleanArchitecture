@@ -1,8 +1,6 @@
-﻿using System.Net.Mail;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
-using Notification.Email.Interfaces;
 
 namespace Notification.Email
 {
@@ -10,34 +8,18 @@ namespace Notification.Email
     {
         // Work in Progress
 
-        private IEmailer Emailer { get; }
-        private IEmailConfiguration Config { get;}
-        private IEmailTemplateRepository Repository { get; }
-
-
-        public CustomerEmailer(IEmailer emailer, 
-            IEmailConfiguration config, 
-            IEmailTemplateRepository repository)
-        {
-            Emailer = emailer;
-            Config = config;
-            Repository = repository;
-        }
-
 
         public async Task SendWelcomeMessage(Customer customer)
         {
-            var template = await Repository.GetEmailTemplate("Customer Welcome");
-
-            // TODO: Replace placeholders with customer info. 
-
-
-            var email = new MailMessage(Config.FromEmailAddress, 
-                customer.EmailAddress, 
-                template.Subject, 
-                template.Body);
-
-            await Emailer.Send(email);
+            // TODO:
+            // 1. Consider what you would have to do to write the code to send a Welcome email to the customer:
+            //    a. What kind of information would you need?
+            //    b. Where would that information come from?
+            //    c. Which part of the overall behaviour in this method might you want to reuse in another place or program?
+            //    d. Assume you don't want to store the email subject and body information in here. Where might that come from?
+            //    e. Even more abstract, imagine we don't want to make any changes in here for any reasonable changes to email
+            //       body/subject, from email address, how we send the emails, and so on. What should the code in here look like?
+            //    f. What could go wrong? What kind of errors might we want to throw as exceptions?
         }
     }
 }
