@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\Notification.Email\Notification.Email.csproj" />
     <ProjectReference Include="..\Presentation.WebApi\Presentation.WebApi.csproj" />
   </ItemGroup>
 

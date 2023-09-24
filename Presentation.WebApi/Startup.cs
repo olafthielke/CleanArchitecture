@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Notification.Email.Interfaces;
+using Notification.Email.Services;
 
 namespace Presentation.WebApi
 {
@@ -87,6 +89,9 @@ namespace Presentation.WebApi
             //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
+
+            services.AddScoped<ICustomerNotifier, CustomerEmailer>();
+            services.AddScoped<IEmailTemplateRepository, NullEmailTemplateRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
