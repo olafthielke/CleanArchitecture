@@ -39,8 +39,8 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            // 1. *** REPO: In-Memory DB ***
-            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            //// 1. *** REPO: In-Memory DB ***
+            //services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
 
             // -----------------------------------------------------------------------------
 
@@ -87,6 +87,8 @@ namespace Presentation.WebApi
             //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
+
+            services.AddSingleton<ICustomerNotifier, NullCustomerNotifier>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

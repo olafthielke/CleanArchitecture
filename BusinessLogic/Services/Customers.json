@@ -4,17 +4,5 @@
     "FirstName": "Fred",
     "LastName": "Flintstone",
     "EmailAddress": "fred@flintstones.net"
-  },
-  {
-    "Id": "de05fd5f-61bf-4eef-9a8c-2d35a1b701d6",
-    "FirstName": "Barney",
-    "LastName": "Rubble",
-    "EmailAddress": "barney@rubbles.rock"
-  },
-  {
-    "Id": "b642ce48-e9a9-4349-acfe-af70332eaae8",
-    "FirstName": "Wilma",
-    "LastName": "Flintstone",
-    "EmailAddress": "wilma@flintstones.net"
   }
 ]
