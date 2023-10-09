@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
+using Notification.Email.Exceptions;
 using Notification.Email.Interfaces;
 
 namespace Notification.Email.Services
@@ -10,11 +10,18 @@ namespace Notification.Email.Services
     {
         // Work in Progress
 
-        private IEmailTemplateRepository EmailTemplateRepo { get; set; }
+        private IEmailTemplateRepository EmailTemplateRepo { get; }
+        private IEmailConfiguration Config { get; }
 
-        public CustomerEmailer(IEmailTemplateRepository emailtemplateRepo)
+        private IEmailer Emailer { get; }
+
+        public CustomerEmailer(IEmailTemplateRepository emailtemplateRepo,
+            IEmailConfiguration config,
+            IEmailer emailer)
         {
             EmailTemplateRepo = emailtemplateRepo;
+            Config = config;
+            Emailer = emailer;
         }
 
         public async Task SendWelcomeMessage(Customer customer)
@@ -40,7 +47,16 @@ namespace Notification.Email.Services
             //    f. What could go wrong? What kind of errors might we want to throw as exceptions?
             const string templateName = "Customer Welcome";
 
-            EmailTemplateRepo.Get(templateName);
+            var template = EmailTemplateRepo.Get(templateName);
+            if (template == null)
+                throw new MissingEmailTemplate(templateName);
+
+            if (Config.FromAddress == null)
+                throw new MissingFromEmailAddress();
+
+            // email template => email
+
+            Emailer.Send();
         }
     }
 }
