@@ -1,7 +1,10 @@
-﻿namespace Notification.Email.Interfaces
+﻿using System.Net.Mail;
+using System.Threading.Tasks;
+
+namespace Notification.Email.Interfaces
 {
     public interface IEmailer
     {
-        void Send();
+        Task Send(MailMessage email);
     }
 }

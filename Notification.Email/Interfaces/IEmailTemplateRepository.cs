@@ -1,9 +1,10 @@
-﻿using Notification.Email.Models;
+﻿using System.Threading.Tasks;
+using Notification.Email.Models;
 
 namespace Notification.Email.Interfaces
 {
     public interface IEmailTemplateRepository
     {
-        EmailTemplate Get(string templateName);
+        Task<EmailTemplate> Get(string templateName);
     }
 }
