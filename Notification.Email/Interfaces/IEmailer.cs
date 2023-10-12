@@ -1,7 +1,9 @@
-﻿namespace Notification.Email.Interfaces
+﻿using System.Net.Mail;
+
+namespace Notification.Email.Interfaces
 {
     public interface IEmailer
     {
-        void Send();
+        void Send(MailMessage email);
     }
 }

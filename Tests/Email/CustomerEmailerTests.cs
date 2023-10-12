@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Net.Mail;
+using System.Threading.Tasks;
 using BusinessLogic.Entities;
 using Xunit;
 using Moq;
@@ -7,6 +9,7 @@ using Notification.Email.Exceptions;
 using Notification.Email.Interfaces;
 using Notification.Email.Models;
 using Notification.Email.Services;
+using NuGet.Frameworks;
 
 
 namespace Tests.Email
@@ -17,7 +20,7 @@ namespace Tests.Email
         public async Task Given_EmailTemplate_Does_Not_Exist_When_Call_SendWelcomeMessage_Then_Throw_MissingEmailTemplate_Exception()
         {
             var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(null);
-            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, null, null);
+            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, null, null,null);
             var customer = new Customer();
             var send = () => customerEmailer.SendWelcomeMessage(customer);
             await send.Should().ThrowExactlyAsync<MissingEmailTemplate>()
@@ -27,25 +30,40 @@ namespace Tests.Email
         [Fact]
         public async Task Given_FromEmailAddress_Does_Not_Exist_When_Call_SendWelcomeMessage_Then_Throw_MissingFromEmailAddress_Exception()
         {
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(new EmailTemplate());
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(new EmailTemplate("Subject", "Body"));
             var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(null);
-            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, null);
+            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, null,null);
             var customer = new Customer();
             var send = () => customerEmailer.SendWelcomeMessage(customer);
             await send.Should().ThrowExactlyAsync<MissingFromEmailAddress>()
                 .WithMessage("No valid FromEmailAddress was found.");
         }
 
-        [Fact]
-        public async Task When_Call_SendWelcomeMessage_Then_Send_Email()
+        [Theory]
+        [InlineData("sender@test.com", "fred@flintstones.net")]
+        [InlineData("donotreply@blah.mil", "fred.flintstones@outlook.com")]
+        [InlineData("from@example.net", "fredflintstone@gmail.com")]
+        public async Task When_Call_SendWelcomeMessage_Then_Send_Email(string fromAddress, string toAddress)
         {
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(new EmailTemplate());
-            var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress("sender@test.com");
+            // Arrange
+            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", toAddress);
+            var template = new EmailTemplate("Welcome to XYZ Corp, {{FirstName}}!", "Hi {{FirstName}}, ...");
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(template);
+            var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(fromAddress);
+            var mockReplacer = new Mock<IPlaceholderReplacer>();
+            mockReplacer.Setup(r => r.Replace("Welcome to XYZ Corp, {{FirstName}}!", customer))
+                .Returns("Welcome to XYZ Corp, Fred!");
+            mockReplacer.Setup(r => r.Replace("Hi {{FirstName}}, ...", customer))
+                .Returns("Hi Fred, ...");
             var emailer = new Mock<IEmailer>();
-            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, emailer.Object);
-            var customer = new Customer();
+            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, mockReplacer.Object, emailer.Object);
+            // Act
             await customerEmailer.SendWelcomeMessage(customer);
-            emailer.Verify(x => x.Send());
+            // Assert
+            emailer.Verify(e => e.Send(It.Is<MailMessage>(m => m.From.Address == fromAddress &&
+                                                               m.To[0].Address == toAddress &&
+                                                               m.Subject == "Welcome to XYZ Corp, Fred!" &&
+                                                               m.Body == "Hi Fred, ...")));
         }
 
 

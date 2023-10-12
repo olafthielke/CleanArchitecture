@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Mail;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using Notification.Email.Exceptions;
@@ -12,15 +14,17 @@ namespace Notification.Email.Services
 
         private IEmailTemplateRepository EmailTemplateRepo { get; }
         private IEmailConfiguration Config { get; }
-
+        private IPlaceholderReplacer Replacer { get; }
         private IEmailer Emailer { get; }
 
         public CustomerEmailer(IEmailTemplateRepository emailtemplateRepo,
             IEmailConfiguration config,
+            IPlaceholderReplacer replacer,
             IEmailer emailer)
         {
             EmailTemplateRepo = emailtemplateRepo;
             Config = config;
+            Replacer = replacer;
             Emailer = emailer;
         }
 
@@ -54,9 +58,17 @@ namespace Notification.Email.Services
             if (Config.FromAddress == null)
                 throw new MissingFromEmailAddress();
 
-            // email template => email
 
-            Emailer.Send();
+            var subject = Replacer.Replace(template.Subject, customer);
+            var body = Replacer.Replace(template.Body, customer);
+
+
+            var email = new MailMessage(Config.FromAddress, 
+                customer.EmailAddress,
+                subject,
+                body);
+
+            Emailer.Send(email);
         }
     }
 }
