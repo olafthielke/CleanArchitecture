@@ -1,21 +1,30 @@
 ﻿using System.Net.Mail;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using Notification.Email.Exceptions;
 using Notification.Email.Interfaces;
+using Notification.Email.Models;
 
 namespace Notification.Email.Services
 {
     public class CustomerEmailer : ICustomerNotifier
     {
-        // Work in Progress
-
         private IEmailTemplateRepository EmailTemplateRepo { get; }
         private IEmailConfiguration Config { get; }
         private IPlaceholderReplacer Replacer { get; }
         private IEmailer Emailer { get; }
+
+        private string FromAddress
+        {
+            get
+            {
+                if (Config.FromAddress == null)
+                    throw new MissingFromEmailAddress();
+                return Config.FromAddress;
+            }
+        }
+
 
         public CustomerEmailer(IEmailTemplateRepository emailtemplateRepo,
             IEmailConfiguration config,
@@ -28,47 +37,28 @@ namespace Notification.Email.Services
             Emailer = emailer;
         }
 
+
         public async Task SendWelcomeMessage(Customer customer)
         {
-            // TODO:
-            // 1. Consider what you would have to do to write the code to send a Welcome email to the customer:
-            //    a. What kind of information would you need?
-            // customer firstname, email address, email body, email subject, from email address
+            var template = await GetEmailTemplate("Customer Welcome");
+            var email = BuildEmail(template, customer);
+            Emailer.Send(email);
+        }
 
-            //    b. Where would that information come from?
-            // customer parameter, email template (Customer Welcome), email config (from / sending email address)
-            // "Hi {{FirstName}}," => "Hi Bob,"
 
-            //    c. Which part of the overall behaviour in this method might you want to reuse in another place or program?
-            // IEmailTemplateRepository, IEmailConfigRepository, IPlaceholderReplacer, IEmailer
-
-            //    d. Assume you don't want to store the email subject and body information in here. Where might that come from?
-            // SqlServerEmailTemplateDatabase
-
-            //    e. Even more abstract, imagine we don't want to make any changes in here for any reasonable changes to email
-            //       body/subject, from email address, how we send the emails, and so on. What should the code in here look like?
-
-            //    f. What could go wrong? What kind of errors might we want to throw as exceptions?
-            const string templateName = "Customer Welcome";
-
-            var template = EmailTemplateRepo.Get(templateName);
+        private async Task<EmailTemplate> GetEmailTemplate(string templateName)
+        {
+            var template = await EmailTemplateRepo.Get(templateName);
             if (template == null)
                 throw new MissingEmailTemplate(templateName);
+            return template;
+        }
 
-            if (Config.FromAddress == null)
-                throw new MissingFromEmailAddress();
-
-
+        private MailMessage BuildEmail(EmailTemplate template, Customer customer)
+        {
             var subject = Replacer.Replace(template.Subject, customer);
             var body = Replacer.Replace(template.Body, customer);
-
-
-            var email = new MailMessage(Config.FromAddress, 
-                customer.EmailAddress,
-                subject,
-                body);
-
-            Emailer.Send(email);
+            return new MailMessage(FromAddress,customer.EmailAddress, subject, body);
         }
     }
 }

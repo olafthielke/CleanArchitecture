@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Net.Mail;
 using System.Threading.Tasks;
-using BusinessLogic.Entities;
 using Xunit;
 using Moq;
 using FluentAssertions;
+using BusinessLogic.Entities;
 using Notification.Email.Exceptions;
 using Notification.Email.Interfaces;
 using Notification.Email.Models;
 using Notification.Email.Services;
-using NuGet.Frameworks;
 
 
 namespace Tests.Email
@@ -19,25 +18,19 @@ namespace Tests.Email
         [Fact]
         public async Task Given_EmailTemplate_Does_Not_Exist_When_Call_SendWelcomeMessage_Then_Throw_MissingEmailTemplate_Exception()
         {
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(null);
-            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, null, null,null);
-            var customer = new Customer();
-            var send = () => customerEmailer.SendWelcomeMessage(customer);
-            await send.Should().ThrowExactlyAsync<MissingEmailTemplate>()
-                .WithMessage("No email template with name 'Customer Welcome' was found.");
+            var customerEmailer = SetupCustomerEmailerWithoutEmailTemplate();
+            Task Send() => customerEmailer.SendWelcomeMessage(new Customer());
+            await AssertThrowsMissingEmailTemplate(Send);
         }
 
         [Fact]
         public async Task Given_FromEmailAddress_Does_Not_Exist_When_Call_SendWelcomeMessage_Then_Throw_MissingFromEmailAddress_Exception()
         {
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(new EmailTemplate("Subject", "Body"));
-            var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(null);
-            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, null,null);
-            var customer = new Customer();
-            var send = () => customerEmailer.SendWelcomeMessage(customer);
-            await send.Should().ThrowExactlyAsync<MissingFromEmailAddress>()
-                .WithMessage("No valid FromEmailAddress was found.");
+            var customerEmailer = SetupCustomerEmailerWithoutFromEmailAddress();
+            Task Send() => customerEmailer.SendWelcomeMessage(new Customer());
+            await AssertThrowsMissingFromEmailAddress(Send);
         }
+
 
         [Theory]
         [InlineData("sender@test.com", "fred@flintstones.net")]
@@ -45,6 +38,7 @@ namespace Tests.Email
         [InlineData("from@example.net", "fredflintstone@gmail.com")]
         public async Task When_Call_SendWelcomeMessage_Then_Send_Email(string fromAddress, string toAddress)
         {
+            // TODO: More tidying up.
             // Arrange
             var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", toAddress);
             var template = new EmailTemplate("Welcome to XYZ Corp, {{FirstName}}!", "Hi {{FirstName}}, ...");
@@ -66,12 +60,25 @@ namespace Tests.Email
                                                                m.Body == "Hi Fred, ...")));
         }
 
+        private CustomerEmailer SetupCustomerEmailerWithoutEmailTemplate()
+        {
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(null);
+            return new CustomerEmailer(mockEmailTemplateRepo.Object, null, null, null);
+        }
+
+        private CustomerEmailer SetupCustomerEmailerWithoutFromEmailAddress()
+        {
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(new EmailTemplate("Subject", "Body"));
+            var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(null);
+            var mockReplacer = new Mock<IPlaceholderReplacer>();
+            return new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, mockReplacer.Object, null);
+        }
 
         private static Mock<IEmailTemplateRepository> SetupMockEmailTemplateRepoToGet(EmailTemplate template)
         {
             var mockEmailTemplateRepo = new Mock<IEmailTemplateRepository>();
             mockEmailTemplateRepo.Setup(x => x.Get("Customer Welcome"))
-                .Returns(template);
+                .ReturnsAsync(template);
             return mockEmailTemplateRepo;
         }
 
@@ -83,9 +90,16 @@ namespace Tests.Email
         }
 
 
-        // Body -> Template
-        // Subject -> Template
-        // Recipient Email Address -> Customer Email Address
-        // Sender Email Address -> Config From Email Address
+        private static async Task AssertThrowsMissingEmailTemplate(Func<Task> send)
+        {
+            await send.Should().ThrowExactlyAsync<MissingEmailTemplate>()
+                .WithMessage("No email template with name 'Customer Welcome' was found.");
+        }
+
+        private static async Task AssertThrowsMissingFromEmailAddress(Func<Task> send)
+        {
+            await send.Should().ThrowExactlyAsync<MissingFromEmailAddress>()
+                .WithMessage("No valid FromEmailAddress was found.");
+        }
     }
 }
