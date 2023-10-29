@@ -41,8 +41,8 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            // 1. *** REPO: In-Memory DB ***
-            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            //// 1. *** REPO: In-Memory DB ***
+            //services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
 
             // -----------------------------------------------------------------------------
 
