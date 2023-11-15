@@ -77,21 +77,30 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            //// 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
-            //// REPO
-            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            //// CACHE: Redis
-            //services.AddScoped<ICustomerCache, RedisCustomerCache>();
-            //services.AddScoped<IRedisConnector, RedisConnector>();
-            //services.AddScoped<IRedisConfiguration, RedisConfiguration>();
-            //// DATABASE: SQL Server
-            //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
-            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            // 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
+            // REPO
+            services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
+            // CACHE: Redis
+            services.AddScoped<ICustomerCache, RedisCustomerCache>();
+            services.AddScoped<IRedisConnector, RedisConnector>();
+            services.AddScoped<IRedisConfiguration, RedisConfiguration>();
+            // DATABASE: SQL Server
+            services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
+            services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
             services.AddScoped<ICustomerNotifier, CustomerEmailer>();
-            services.AddScoped<IEmailTemplateRepository, NullEmailTemplateRepository>();
+
+        //private IEmailTemplateRepository EmailTemplateRepo { get; }   DONE
+        //private IEmailConfiguration Config { get; }                   DONE
+        //private IPlaceholderReplacer Replacer { get; }                DONE
+        //private IEmailer Emailer { get; }
+
+            services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
+            services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
+            services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
+            services.AddScoped<IEmailer, NullEmailer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
