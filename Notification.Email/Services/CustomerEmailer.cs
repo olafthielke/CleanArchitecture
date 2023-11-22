@@ -42,7 +42,7 @@ namespace Notification.Email.Services
         {
             var template = await GetEmailTemplate("Customer Welcome");
             var email = BuildEmail(template, customer);
-            Emailer.Send(email);
+            await Emailer.Send(email);
         }
 
 

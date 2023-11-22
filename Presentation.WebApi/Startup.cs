@@ -41,8 +41,8 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            //// 1. *** REPO: In-Memory DB ***
-            //services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            // 1. *** REPO: In-Memory DB ***
+            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
 
             // -----------------------------------------------------------------------------
 
@@ -77,27 +77,23 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            // 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
-            // REPO
-            services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            // CACHE: Redis
-            services.AddScoped<ICustomerCache, RedisCustomerCache>();
-            services.AddScoped<IRedisConnector, RedisConnector>();
-            services.AddScoped<IRedisConfiguration, RedisConfiguration>();
-            // DATABASE: SQL Server
-            services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
-            services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            //// 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
+            //// REPO
+            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
+            //// CACHE: Redis
+            //services.AddScoped<ICustomerCache, RedisCustomerCache>();
+            //services.AddScoped<IRedisConnector, RedisConnector>();
+            //services.AddScoped<IRedisConfiguration, RedisConfiguration>();
+            //// DATABASE: SQL Server
+            //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
+            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
             services.AddScoped<ICustomerNotifier, CustomerEmailer>();
 
-        //private IEmailTemplateRepository EmailTemplateRepo { get; }   DONE
-        //private IEmailConfiguration Config { get; }                   DONE
-        //private IPlaceholderReplacer Replacer { get; }                DONE
-        //private IEmailer Emailer { get; }
-
             services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
+            services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
             services.AddScoped<IEmailer, NullEmailer>();
