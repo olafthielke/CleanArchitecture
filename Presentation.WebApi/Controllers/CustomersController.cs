@@ -75,10 +75,9 @@ namespace Presentation.WebApi.Controllers
                 ValidationException valEx => BadRequest(valEx.Errors),
                 ClientInputException => BadRequest(new[] { ex.Message }),
                 NotFoundException => NotFound(),
+                ServiceException => new StatusCodeResult(502), // Bad Gateway, a call to an incoming host fails.
                 _ => throw ex   // ... otherwise rethrow and generate a 500 - Internal Server Error
             };
-
-           
         }
     }
 }

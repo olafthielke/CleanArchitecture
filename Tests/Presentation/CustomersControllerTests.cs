@@ -67,6 +67,15 @@ namespace Tests.Presentation
             VerifyBadRequestResult(result, errorMsgs);
         }
 
+        [Fact]
+        public async Task Given_UseCase_Throws_ServiceException_When_Call_Register_Then_Return_502_BadGateway()
+        {
+            var controller = SetupController(new ServiceException("AWS Emailing failed!", new Exception("Message rejeced exception")));
+            var result = await controller.Register(ApiRegoAdamAnt);
+            VerifyBadGatewayResult(result);
+        }
+
+
         //[Fact]
         //public async Task Given_UseCase_Throws_NonSpecific_Exception_When_Call_Register_Then_Return_500_InternalServerError()
         //{
@@ -128,6 +137,12 @@ namespace Tests.Presentation
         {
             var badRequestResult = result as BadRequestObjectResult;
             badRequestResult.Value.Should().BeEquivalentTo(messages);
+        }
+
+        private static void VerifyBadGatewayResult(IActionResult result)
+        {
+            var statusCodeResult = result as StatusCodeResult;
+            statusCodeResult.StatusCode.Should().Be(502);
         }
     }
 }

@@ -16,7 +16,9 @@
     <ProjectReference Include="..\Data.Redis.Common\Data.Redis.Common.csproj" />
     <ProjectReference Include="..\Data.Redis.Specific\Data.Redis.Specific.csproj" />
     <ProjectReference Include="..\Data.SqlServer.Specific\Data.SqlServer.Specific.csproj" />
+    <ProjectReference Include="..\Notification.Email.AWS\Notification.Email.AWS.csproj" />
     <ProjectReference Include="..\Notification.Email\Notification.Email.csproj" />
+    <ProjectReference Include="..\Notification.SMS\Notification.SMS.csproj" />
   </ItemGroup>
 
 
