@@ -38,7 +38,6 @@ namespace Data.Proxy
 
         public async Task SaveCustomer(Customer customer)
         {
-            // TODO: Do this async.
             await Database.SaveCustomer(customer);
             await Cache.SaveCustomer(customer);
         }
