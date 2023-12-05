@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Notification.Email.AWS;
 using Notification.Email.AWS.Interfaces;
@@ -17,6 +18,8 @@ using Notification.Email.AWS.Services;
 using Notification.Email.Interfaces;
 using Notification.Email.Services;
 using Notification.SMS;
+using Microsoft.EntityFrameworkCore;
+using Data.Postgres;
 
 namespace Presentation.WebApi
 {
@@ -45,8 +48,8 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            // 1. *** REPO: In-Memory DB ***
-            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            //// 1. *** REPO: In-Memory DB ***
+            //services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
 
             // -----------------------------------------------------------------------------
 
@@ -57,6 +60,7 @@ namespace Presentation.WebApi
 
             //// 3. *** REPO: SQL Server DB ***
             //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
+            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
             //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
@@ -81,23 +85,29 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            // 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
-            // REPO
-            services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            // CACHE: Redis
-            services.AddScoped<ICustomerCache, RedisCustomerCache>();
-            services.AddScoped<IRedisConnector, RedisConnector>();
-            services.AddScoped<IRedisConfiguration, RedisConfiguration>();
-            // DATABASE: SQL Server
-            services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
-            services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            //// 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
+            //// REPO
+            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
+            //// CACHE: Redis
+            //services.AddScoped<ICustomerCache, RedisCustomerCache>();
+            //services.AddScoped<IRedisConnector, RedisConnector>();
+            //services.AddScoped<IRedisConfiguration, RedisConfiguration>();
+            //// DATABASE: SQL Server
+            //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
+            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
+            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
+            // 7. *** DATABASE: PostgresDB ***
+            // REPO
+            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Database")));
+            services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
+            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
+
+            // -----------------------------------------------------------------------------
             services.AddScoped<ICustomerNotifier, CustomerEmailer>();
 
-            services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
-            services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
             services.AddScoped<IEmailer, NullEmailer>();
