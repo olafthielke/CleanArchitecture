@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Notification.Email.AWS;
+using Notification.Email.AWS.Interfaces;
+using Notification.Email.AWS.Services;
 using Notification.Email.Interfaces;
 using Notification.Email.Services;
 using Notification.SMS;
@@ -79,16 +81,16 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            //// 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
-            //// REPO
-            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            //// CACHE: Redis
-            //services.AddScoped<ICustomerCache, RedisCustomerCache>();
-            //services.AddScoped<IRedisConnector, RedisConnector>();
-            //services.AddScoped<IRedisConfiguration, RedisConfiguration>();
-            //// DATABASE: SQL Server
-            //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
-            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            // 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
+            // REPO
+            services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
+            // CACHE: Redis
+            services.AddScoped<ICustomerCache, RedisCustomerCache>();
+            services.AddScoped<IRedisConnector, RedisConnector>();
+            services.AddScoped<IRedisConfiguration, RedisConfiguration>();
+            // DATABASE: SQL Server
+            services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
+            services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
@@ -98,7 +100,10 @@ namespace Presentation.WebApi
             services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
-            services.AddScoped<IEmailer, AwsEmailer>();
+            services.AddScoped<IEmailer, NullEmailer>();
+            //services.AddScoped<IEmailer, AwsEmailer>();
+            //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
+            //services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
