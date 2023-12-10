@@ -26,11 +26,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5172939D-40DA-4134-96E2-EF5B4EA92F17}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		.env = .env
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification.Email.AWS", "Notification.Email.AWS\Notification.Email.AWS.csproj", "{7D533AE0-BC87-4912-A7EC-5D4E9962D179}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Postgres", "Data.Postgres\Data.Postgres.csproj", "{94FB5F3F-7E1B-4679-B8F2-F934481C9DF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Postgres", "Data.Postgres\Data.Postgres.csproj", "{94FB5F3F-7E1B-4679-B8F2-F934481C9DF8}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +89,10 @@ Global
 		{94FB5F3F-7E1B-4679-B8F2-F934481C9DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94FB5F3F-7E1B-4679-B8F2-F934481C9DF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94FB5F3F-7E1B-4679-B8F2-F934481C9DF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

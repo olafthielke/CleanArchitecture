@@ -1,15 +1,11 @@
-﻿using BusinessLogic.Entities;
-using Notification.Email.Models;
-using System;
+﻿using Notification.Email.Models;
 using System.ComponentModel.DataAnnotations;
-using System.Net.Mail;
 
 namespace Data.Postgres
 {
     public class DbEmailTemplate
     {
-        public int id {  get; set; }
-        [Required]
+        [Key]
         public string name { get; set; }
         [Required]
         public string subject { get; set; }

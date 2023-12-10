@@ -1,17 +1,11 @@
 ﻿using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
-using System.Linq;
 
 namespace Data.Postgres
 {
-    public class PostgresCustomerDatabase : ICustomerDatabase
+    public class PostgresCustomerDatabase(DataContext context) : ICustomerDatabase
     {
-        private DataContext Context { get; set; }
-
-        public PostgresCustomerDatabase(DataContext context)
-        {
-            Context = context;
-        }
+        private DataContext Context { get; } = context;
 
 
         public async Task<IEnumerable<Customer>> GetAllCustomers()

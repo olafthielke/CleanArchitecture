@@ -1,0 +1,2 @@
+Name,Subject,Body
+"Customer Welcome","Welcome [[FirstName]]!","Hi [[FirstName]] [[LastName]], ..."

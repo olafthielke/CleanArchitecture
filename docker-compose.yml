@@ -1,0 +1,31 @@
+version: '3.4'
+
+services:
+  presentation.webapi:
+    image: ${DOCKER_REGISTRY-}presentationwebapi
+    build:
+      context: .
+      dockerfile: Presentation.WebApi/Dockerfile
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    restart: always
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    volumes:
+      - ./dataset:/docker-entrypoint-initdb.d
+
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: pgadmin4
+  #   restart: always
+  #   ports:
+  #     - 5050:80
+  #   env_file:
+  #     - .env
+
