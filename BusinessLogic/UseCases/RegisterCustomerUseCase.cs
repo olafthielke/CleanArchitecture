@@ -5,17 +5,11 @@ using BusinessLogic.Interfaces;
 
 namespace BusinessLogic.UseCases
 {
-    public class RegisterCustomerUseCase : IRegisterCustomerUseCase
+    public class RegisterCustomerUseCase(ICustomerRepository repository, ICustomerNotifier notifier)
+        : IRegisterCustomerUseCase
     {
-        public ICustomerRepository Repository { get; }
-        public ICustomerNotifier Notifier { get; }
-
-
-        public RegisterCustomerUseCase(ICustomerRepository repository, ICustomerNotifier notifier)
-        {
-            Repository = repository;
-            Notifier = notifier;
-        }
+        public ICustomerRepository Repository { get; } = repository;
+        public ICustomerNotifier Notifier { get; } = notifier;
 
 
         public async Task<Customer> RegisterCustomer(CustomerRegistration reg)

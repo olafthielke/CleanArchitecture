@@ -17,18 +17,13 @@ namespace Presentation.WebApi.Controllers
     /// </summary>
     [ApiController]
     [Route("[controller]")]
-    public class CustomersController : ControllerBase
+    public class CustomersController(
+        IGetAllCustomersUseCase getAllUseCase,
+        IRegisterCustomerUseCase registerUseCase)
+        : ControllerBase
     {
-        public IGetAllCustomersUseCase GetAllUseCase { get; }
-        public IRegisterCustomerUseCase RegisterUseCase { get; }
-
-
-        public CustomersController(IGetAllCustomersUseCase getAllUseCase,
-            IRegisterCustomerUseCase registerUseCase)
-        {
-            GetAllUseCase = getAllUseCase;
-            RegisterUseCase = registerUseCase;
-        }
+        public IGetAllCustomersUseCase GetAllUseCase { get; } = getAllUseCase;
+        public IRegisterCustomerUseCase RegisterUseCase { get; } = registerUseCase;
 
 
         [HttpGet]
