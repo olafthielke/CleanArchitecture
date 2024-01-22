@@ -1,26 +1,22 @@
 ﻿using System.Threading.Tasks;
 using BusinessLogic.Entities;
-using BusinessLogic.Exceptions;
 using BusinessLogic.Interfaces;
 
 namespace BusinessLogic.UseCases
 {
-    public class RegisterCustomerUseCase : IRegisterCustomerUseCase
+    public class RegisterCustomerUseCase(ICustomerRepository repository, ICustomerNotifier notifier)
+        : IRegisterCustomerUseCase
     {
-        public ICustomerRepository Repository { get; }
-        public ICustomerNotifier Notifier { get; }
+        public ICustomerRepository Repository { get; } = repository;
+        public ICustomerNotifier Notifier { get; } = notifier;
 
 
-        public RegisterCustomerUseCase(ICustomerRepository repository, ICustomerNotifier notifier)
+        public async Task<Result<Customer, Error>> RegisterCustomer(CustomerRegistration reg)
         {
-            Repository = repository;
-            Notifier = notifier;
-        }
+            var validationResult = await Validate(reg);
+            if (validationResult.IsError)
+                return validationResult.Error;
 
-
-        public async Task<Customer> RegisterCustomer(CustomerRegistration reg)
-        {
-            await Validate(reg);
             var customer = reg.ToCustomer();
             await Repository.SaveCustomer(customer);
             await Notifier.SendWelcomeMessage(customer);
@@ -28,14 +24,18 @@ namespace BusinessLogic.UseCases
         }
 
 
-        private async Task Validate(CustomerRegistration reg)
+        private async Task<Result<bool, Error>> Validate(CustomerRegistration reg)
         {
             if (reg == null)
-                throw new MissingCustomerRegistration();
-            reg.Validate();
+                return ValidationErrors.MissingCustomerRegistration;
+            var validationResult = reg.Validate();
+            if (validationResult.IsError)
+                return validationResult;
             var existCust = await Repository.GetCustomer(reg.EmailAddress);
             if (existCust != null)
-                throw new DuplicateCustomerEmailAddress(reg.EmailAddress);
+                return ValidationErrors.DuplicateCustomerEmailAddress;
+
+            return true;
         }
     }
 }

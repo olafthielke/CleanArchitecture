@@ -5,6 +5,6 @@ namespace BusinessLogic.Interfaces
 {
     public interface IRegisterCustomerUseCase
     {
-        Task<Customer> RegisterCustomer(CustomerRegistration registration);
+        Task<Result<Customer, Error>> RegisterCustomer(CustomerRegistration registration);
     }
 }

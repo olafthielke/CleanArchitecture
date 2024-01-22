@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using FluentAssertions;
 using BusinessLogic.Entities;
-using BusinessLogic.Exceptions;
 using Presentation.WebApi.Controllers;
 using Presentation.WebApi.Models;
 using Tests.Fakes.BusinessLogic;
+using BusinessLogic.Exceptions;
 
 namespace Tests.Presentation
 {
@@ -46,25 +46,12 @@ namespace Tests.Presentation
             VerifyOkResult(result, customer);
         }
 
-        [Theory]
-        [InlineData("Client Input Error")]
-        [InlineData("a different error message")]
-        public async Task Given_UseCase_Throws_Simple_ClientInputException_When_Call_Register_Then_Return_400_BadRequest(string errorMsg)
+        [Fact]
+        public async Task Given_UseCase_Returns_ValidationError_When_Call_Register_Then_Return_400_BadRequest()
         {
-            var controller = SetupController(new DummyClientInputException(errorMsg));
+            var controller = SetupController(ValidationErrors.DuplicateCustomerEmailAddress);
             var result = await controller.Register(ApiRegoAdamAnt);
-            VerifyBadRequestResult(result, errorMsg);
-        }
-
-        [Theory]
-        [InlineData("Error 1")]
-        [InlineData("Error 1", "Error 2")]
-        [InlineData("Error 1", "Error 2", "Error 3")]
-        public async Task Given_UseCase_Throws_ValidationException_When_Call_Register_Then_Return_400_BadRequest_With_Messages(params string[] errorMsgs)
-        {
-            var controller = SetupController(new ValidationException(errorMsgs));
-            var result = await controller.Register(ApiRegoAdamAnt);
-            VerifyBadRequestResult(result, errorMsgs);
+            VerifyBadRequestResult(result, "This email address already exists in the system.");
         }
 
         [Fact]
@@ -85,14 +72,14 @@ namespace Tests.Presentation
         //}
 
 
-        private static readonly ApiCustomerRegistration ApiRegoAdamAnt = new ApiCustomerRegistration("Adam", "Ant", "adam@ant.co.uk");
-        private static readonly ApiCustomerRegistration ApiRegoBobSmith = new ApiCustomerRegistration("Bob", "Smith", "bob@smith.com");
+        private static readonly ApiCustomerRegistration ApiRegoAdamAnt = new("Adam", "Ant", "adam@ant.co.uk");
+        private static readonly ApiCustomerRegistration ApiRegoBobSmith = new("Bob", "Smith", "bob@smith.com");
 
-        private static readonly CustomerRegistration RegoAdamAnt = new CustomerRegistration("Adam", "Ant", "adam@ant.co.uk");
-        private static readonly CustomerRegistration RegoBobSmith = new CustomerRegistration("Bob", "Smith", "bob@smith.com");
+        private static readonly CustomerRegistration RegoAdamAnt = new("Adam", "Ant", "adam@ant.co.uk");
+        private static readonly CustomerRegistration RegoBobSmith = new("Bob", "Smith", "bob@smith.com");
 
-        private static readonly Customer CustomerAdamAnt = new Customer(Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk");
-        private static readonly Customer CustomerBobSmith = new Customer(Guid.NewGuid(), "Bob", "Smith", "bob@smith.com");
+        private static readonly Customer CustomerAdamAnt = new(Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk");
+        private static readonly Customer CustomerBobSmith = new(Guid.NewGuid(), "Bob", "Smith", "bob@smith.com");
 
         public static IEnumerable<object[]> GetApiRegistrationsAndRegistrations()
         {
@@ -113,12 +100,17 @@ namespace Tests.Presentation
             return new CustomersController(null, useCase);
         }
 
-        private static CustomersController SetupController(Exception exception)
+        private static CustomersController SetupController(Error error)
         {
-            var useCase = new MockRegisterCustomerUseCase(exception);
+            var useCase = new MockRegisterCustomerUseCase(error);
             return new CustomersController(null, useCase);
         }
 
+        private static CustomersController SetupController(Exception ex)
+        {
+            var useCase = new MockRegisterCustomerUseCase(ex);
+            return new CustomersController(null, useCase);
+        }
 
         private static void VerifyCallUseCase(CustomersController controller, CustomerRegistration rego)
         {
@@ -130,19 +122,19 @@ namespace Tests.Presentation
         private static void VerifyOkResult<T>(IActionResult result, T t)
         {
             var okResult = result as OkObjectResult;
-            okResult.Value.Should().BeEquivalentTo(t);
+            okResult?.Value.Should().BeEquivalentTo(t);
         }
 
-        private static void VerifyBadRequestResult(IActionResult result, params string[] messages)
+        private static void VerifyBadRequestResult(IActionResult result, string message)
         {
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().BeEquivalentTo(messages);
+            badRequestResult?.Value.Should().Be(message);
         }
 
         private static void VerifyBadGatewayResult(IActionResult result)
         {
             var statusCodeResult = result as StatusCodeResult;
-            statusCodeResult.StatusCode.Should().Be(502);
+            statusCodeResult?.StatusCode.Should().Be(502);
         }
     }
 }

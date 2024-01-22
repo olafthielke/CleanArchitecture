@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BusinessLogic;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 
@@ -14,25 +15,31 @@ namespace Tests.Fakes.BusinessLogic
         public CustomerRegistration PassedInRegistration;
 
         public Customer CustomerToReturn;
+        public Error ErrorToReturn;
         public Exception ExceptionToThrow;
-
 
         public MockRegisterCustomerUseCase(Customer customer = null)
         {
             CustomerToReturn = customer;
         }
 
-        public MockRegisterCustomerUseCase(Exception exception)
+        public MockRegisterCustomerUseCase(Error error)
         {
-            ExceptionToThrow = exception;
+            ErrorToReturn = error;
         }
 
+        public MockRegisterCustomerUseCase(Exception ex)
+        {
+            ExceptionToThrow = ex;
+        }
 
-        public async Task<Customer> RegisterCustomer(CustomerRegistration registration)
+        public async Task<Result<Customer, Error>> RegisterCustomer(CustomerRegistration registration)
         {
             await Task.CompletedTask;
             WasRegisterCalled = true;
             PassedInRegistration = registration;
+            if (ErrorToReturn != null)
+                return ErrorToReturn;
             if (ExceptionToThrow != null)
                 throw ExceptionToThrow;
             return CustomerToReturn;

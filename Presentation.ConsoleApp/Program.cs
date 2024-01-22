@@ -6,7 +6,6 @@ using Data.Proxy;
 using Data.Redis.Common;
 using Data.Redis.Specific;
 using Data.SqlServer.Specific;
-using Notification.Email;
 
 
 namespace Presentation.ConsoleApp
@@ -21,8 +20,8 @@ namespace Presentation.ConsoleApp
 
             try
             {
-                var customer = useCase.RegisterCustomer(registration).Result;
-                LogCustomer(customer);
+                var result = useCase.RegisterCustomer(registration).Result;
+                LogCustomer(result.Value);
             }
             catch (Exception ex)
             {

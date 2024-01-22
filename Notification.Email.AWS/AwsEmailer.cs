@@ -2,22 +2,18 @@
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using BusinessLogic.Exceptions;
-using Notification.Email.AWS.Interfaces;
 using Notification.Email.Interfaces;
+using Notification.Email.AWS.Interfaces;
 
 namespace Notification.Email.AWS
 {
-    public class AwsEmailer : IEmailer
+    public class AwsEmailer(
+        IAmazonSimpleEmailServiceClientFactory clientFactory,
+        IAmazonConfiguration config)
+        : IEmailer
     { 
-        private IAmazonSimpleEmailServiceClientFactory ClientFactory { get; }
-        private IAmazonConfiguration Config { get; }
-
-        public AwsEmailer(IAmazonSimpleEmailServiceClientFactory clientFactory, 
-            IAmazonConfiguration config)
-        {
-            ClientFactory = clientFactory;
-            Config = config;
-        }
+        private IAmazonSimpleEmailServiceClientFactory ClientFactory { get; } = clientFactory;
+        private IAmazonConfiguration Config { get; } = config;
 
         public async Task Send(MailMessage email)
         {
@@ -46,7 +42,7 @@ namespace Notification.Email.AWS
                 Destination = new Destination
                 {
                     ToAddresses =
-                        new List<string> { email.To[0].Address }
+                        [email.To[0].Address]
                 },
                 Message = new Message
                 {

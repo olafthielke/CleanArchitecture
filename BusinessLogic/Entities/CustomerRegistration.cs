@@ -3,34 +3,23 @@ using BusinessLogic.Exceptions;
 
 namespace BusinessLogic.Entities
 {
-    public class CustomerRegistration
+    public class CustomerRegistration(string firstName, string lastName, string emailAddress)
     {
-        public string FirstName { get; }
-        public string LastName { get; }
-        public string EmailAddress { get; }
+        public string FirstName { get; } = firstName;
+        public string LastName { get; } = lastName;
+        public string EmailAddress { get; } = emailAddress;
 
 
-        public CustomerRegistration(string firstName, string lastName, string emailAddress)
+        public Result<bool, Error> Validate()
         {
-            FirstName = firstName;
-            LastName = lastName;
-            EmailAddress = emailAddress;
-        }
-
-
-        public void Validate()
-        {
-            var errors = new ValidationException();
-            
             if (string.IsNullOrWhiteSpace(FirstName))
-                errors.Add("Missing first name.");
+                return ValidationErrors.MissingFirstName;
             if (string.IsNullOrWhiteSpace(LastName))
-                errors.Add("Missing last name.");
+                return ValidationErrors.MissingLastName;
             if (string.IsNullOrWhiteSpace(EmailAddress))
-                errors.Add("Missing email address.");
+                return ValidationErrors.MissingEmailAddress;
 
-            if (errors.HasErrors)
-                throw errors;
+            return true;
         }
 
         public Customer ToCustomer()

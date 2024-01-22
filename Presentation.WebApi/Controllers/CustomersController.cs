@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BusinessLogic;
+using BusinessLogic.Entities;
 using Microsoft.AspNetCore.Mvc;
 using BusinessLogic.Exceptions;
 using BusinessLogic.Interfaces;
@@ -17,18 +19,13 @@ namespace Presentation.WebApi.Controllers
     /// </summary>
     [ApiController]
     [Route("[controller]")]
-    public class CustomersController : ControllerBase
+    public class CustomersController(
+        IGetAllCustomersUseCase getAllUseCase,
+        IRegisterCustomerUseCase registerUseCase)
+        : ControllerBase
     {
-        public IGetAllCustomersUseCase GetAllUseCase { get; }
-        public IRegisterCustomerUseCase RegisterUseCase { get; }
-
-
-        public CustomersController(IGetAllCustomersUseCase getAllUseCase,
-            IRegisterCustomerUseCase registerUseCase)
-        {
-            GetAllUseCase = getAllUseCase;
-            RegisterUseCase = registerUseCase;
-        }
+        public IGetAllCustomersUseCase GetAllUseCase { get; } = getAllUseCase;
+        public IRegisterCustomerUseCase RegisterUseCase { get; } = registerUseCase;
 
 
         [HttpGet]
@@ -53,17 +50,30 @@ namespace Presentation.WebApi.Controllers
 
         private async Task<IActionResult> TryRegister(ApiCustomerRegistration customerReg)
         {
-            Validate(customerReg);
+            var validationResult = Validate(customerReg);
+            if (validationResult.IsError)
+                return await HandleError(validationResult.Error);
             var reg = customerReg.ToRegistration();
-            var customer = await RegisterUseCase.RegisterCustomer(reg);
-            return Ok(customer);
+            var result = await RegisterUseCase.RegisterCustomer(reg);
+            if (result.IsError)
+                return await HandleError(result.Error);
+            return Ok(result.Value);
         }
 
 
-        private static void Validate(ApiCustomerRegistration customerReg)
+        private static Result<bool, Error> Validate(ApiCustomerRegistration customerReg)
         {
             if (customerReg == null)
-                throw new MissingCustomerRegistration();
+                return ValidationErrors.MissingCustomerRegistration;
+
+            return true;
+        }
+
+        private async Task<IActionResult> HandleError(Error err)
+        {
+            await Task.CompletedTask;
+
+            return BadRequest(err.Message);
         }
 
         private async Task<IActionResult> HandleException(Exception ex)
@@ -72,8 +82,6 @@ namespace Presentation.WebApi.Controllers
 
             return ex switch
             {
-                ValidationException valEx => BadRequest(valEx.Errors),
-                ClientInputException => BadRequest(new[] { ex.Message }),
                 NotFoundException => NotFound(),
                 ServiceException => new StatusCodeResult(502), // Bad Gateway, a call to an incoming host fails.
                 _ => throw ex   // ... otherwise rethrow and generate a 500 - Internal Server Error

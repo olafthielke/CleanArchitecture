@@ -29,7 +29,7 @@ namespace Data.Postgres
             await Task.CompletedTask;
             var dbCustomer = new DbCustomer(customer);
             Context.customers.Add(dbCustomer);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
         }
     }
 }
