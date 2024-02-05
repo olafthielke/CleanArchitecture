@@ -6,12 +6,8 @@ using Data.Redis.Common.Interfaces;
 
 namespace Data.Redis.Specific
 {
-    public class RedisCustomerCache : RedisCache<Customer>, ICustomerCache
+    public class RedisCustomerCache(IRedisConnector connector) : RedisCache<Customer>(connector), ICustomerCache
     {
-        public RedisCustomerCache(IRedisConnector connector) 
-            : base(connector)
-        { }
-
         public async Task<Customer> GetCustomer(string emailAddress)
         {
             var cacheKey = BuildCustomerCacheKey(emailAddress);

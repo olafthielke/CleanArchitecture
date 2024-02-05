@@ -23,14 +23,9 @@ using Data.Postgres;
 
 namespace Presentation.WebApi
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; } = configuration;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -91,7 +86,7 @@ namespace Presentation.WebApi
             //// CACHE: Redis
             //services.AddScoped<ICustomerCache, RedisCustomerCache>();
             //services.AddScoped<IRedisConnector, RedisConnector>();
-            //services.AddScoped<IRedisConfiguration, RedisConfiguration>();
+            //services.AddScoped<IRedisConfiguration, HardcodedRedisConfiguration>();
             //// DATABASE: SQL Server
             //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
             //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
