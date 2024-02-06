@@ -8,12 +8,17 @@ using Notification.Email.Models;
 
 namespace Notification.Email.Services
 {
-    public class CustomerEmailer : ICustomerNotifier
+    public class CustomerEmailer(
+        IEmailTemplateRepository emailtemplateRepo,
+        IEmailConfiguration config,
+        IPlaceholderReplacer replacer,
+        IEmailer emailer)
+        : ICustomerNotifier
     {
-        private IEmailTemplateRepository EmailTemplateRepo { get; }
-        private IEmailConfiguration Config { get; }
-        private IPlaceholderReplacer Replacer { get; }
-        private IEmailer Emailer { get; }
+        private IEmailTemplateRepository EmailTemplateRepo { get; } = emailtemplateRepo;
+        private IEmailConfiguration Config { get; } = config;
+        private IPlaceholderReplacer Replacer { get; } = replacer;
+        private IEmailer Emailer { get; } = emailer;
 
         private string FromAddress
         {
@@ -23,18 +28,6 @@ namespace Notification.Email.Services
                     throw new MissingFromEmailAddress();
                 return Config.FromAddress;
             }
-        }
-
-
-        public CustomerEmailer(IEmailTemplateRepository emailtemplateRepo,
-            IEmailConfiguration config,
-            IPlaceholderReplacer replacer,
-            IEmailer emailer)
-        {
-            EmailTemplateRepo = emailtemplateRepo;
-            Config = config;
-            Replacer = replacer;
-            Emailer = emailer;
         }
 
 

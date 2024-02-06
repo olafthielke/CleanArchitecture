@@ -111,6 +111,7 @@ namespace Presentation.WebApi
             // AWS SES Emailer Services Config
             services.Configure<AwsConfig>(Configuration.GetSection("AwsConfig"));
             services.AddScoped<IEmailer, AwsEmailer>();
+            services.AddScoped<IAmazonConfiguration, AppSettingsAmazonConfiguration>();
             services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
         }
 
