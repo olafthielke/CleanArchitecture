@@ -1,25 +1,38 @@
 ﻿using System.Net.Mail;
+using Microsoft.Extensions.Options;
 using Amazon;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using BusinessLogic.Exceptions;
 using Notification.Email.AWS.Interfaces;
 using Notification.Email.Interfaces;
+using Notification.Email.AWS.Models;
 
 namespace Notification.Email.AWS
 {
     public class AwsEmailer(
-        IAmazonSimpleEmailServiceClientFactory clientFactory)
+        IAmazonSimpleEmailServiceClientFactory clientFactory,
+        IOptions<AwsConfig> awsConfigOptions)
         : IEmailer
     { 
         private IAmazonSimpleEmailServiceClientFactory ClientFactory { get; } = clientFactory;
+        private IOptions<AwsConfig> AwsConfigOptions { get; } = awsConfigOptions;
 
         public async Task Send(MailMessage email)
         {
-            // Hardcoded AWS Region
-            using var awsClient = ClientFactory.Create(RegionEndpoint.APSoutheast2);
+            // IOptions Configured AWS Region
+            var region = GetConfiguredRegion();
+            using var awsClient = ClientFactory.Create(region);
             var request = BuildSendEmailRequest(email);
             await SendAwsEmail(awsClient, request);
+        }
+
+        private RegionEndpoint GetConfiguredRegion()
+        {
+            var regionName = AwsConfigOptions.Value.Region;
+            return regionName == null ?
+                RegionEndpoint.USEast1 : // Config Default -> Great Idea!!
+                RegionEndpoint.GetBySystemName(regionName);
         }
 
         private static async Task SendAwsEmail(IAmazonSimpleEmailService client, SendEmailRequest request)

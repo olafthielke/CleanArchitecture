@@ -20,6 +20,7 @@ using Notification.Email.Services;
 using Notification.SMS;
 using Microsoft.EntityFrameworkCore;
 using Data.Postgres;
+using Notification.Email.AWS.Models;
 
 namespace Presentation.WebApi
 {
@@ -31,6 +32,8 @@ namespace Presentation.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddOptions();
 
             services.AddScoped<IGetAllCustomersUseCase, GetAllCustomersUseCase>();
             services.AddScoped<IRegisterCustomerUseCase, RegisterCustomerUseCase>();
@@ -106,6 +109,7 @@ namespace Presentation.WebApi
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
 
             // AWS SES Emailer Services Config
+            services.Configure<AwsConfig>(Configuration.GetSection("AwsConfig"));
             services.AddScoped<IEmailer, AwsEmailer>();
             services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
         }
