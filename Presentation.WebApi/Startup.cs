@@ -102,13 +102,12 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
             services.AddScoped<ICustomerNotifier, CustomerEmailer>();
-
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
-            services.AddScoped<IEmailer, NullEmailer>();
-            //services.AddScoped<IEmailer, AwsEmailer>();
-            //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
-            //services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
+
+            // AWS SES Emailer Services Config
+            services.AddScoped<IEmailer, AwsEmailer>();
+            services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

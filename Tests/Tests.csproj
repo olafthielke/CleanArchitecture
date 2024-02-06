@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Presentation.WebApi\Presentation.WebApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Email\AWS\" />
+  </ItemGroup>
+
 </Project>

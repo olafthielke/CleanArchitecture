@@ -1,4 +1,5 @@
 ﻿using System.Net.Mail;
+using Amazon;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using BusinessLogic.Exceptions;
@@ -8,16 +9,15 @@ using Notification.Email.Interfaces;
 namespace Notification.Email.AWS
 {
     public class AwsEmailer(
-        IAmazonSimpleEmailServiceClientFactory clientFactory,
-        IAmazonConfiguration config)
+        IAmazonSimpleEmailServiceClientFactory clientFactory)
         : IEmailer
     { 
         private IAmazonSimpleEmailServiceClientFactory ClientFactory { get; } = clientFactory;
-        private IAmazonConfiguration Config { get; } = config;
 
         public async Task Send(MailMessage email)
         {
-            using var awsClient = ClientFactory.Create(Config.Region);
+            // Hardcoded AWS Region
+            using var awsClient = ClientFactory.Create(RegionEndpoint.APSoutheast2);
             var request = BuildSendEmailRequest(email);
             await SendAwsEmail(awsClient, request);
         }
