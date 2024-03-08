@@ -12,14 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Notification.Email.AWS;
-using Notification.Email.AWS.Interfaces;
-using Notification.Email.AWS.Services;
-using Notification.Email.Interfaces;
-using Notification.Email.Services;
 using Notification.SMS;
-using Microsoft.EntityFrameworkCore;
-using Data.Postgres;
 
 namespace Presentation.WebApi
 {
@@ -35,6 +28,9 @@ namespace Presentation.WebApi
             services.AddScoped<IGetAllCustomersUseCase, GetAllCustomersUseCase>();
             services.AddScoped<IRegisterCustomerUseCase, RegisterCustomerUseCase>();
 
+            
+            services.AddScoped<ICustomerNotifier, NullCustomerNotifier>();
+
             // IT'S LIKE LEGO FOR ADULTS!
 
             // Uncomment only one of the 6 numbered and separated blocks to radically alter 
@@ -43,8 +39,8 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            //// 1. *** REPO: In-Memory DB ***
-            //services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            // 1. *** REPO: In-Memory DB ***
+            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
 
             // -----------------------------------------------------------------------------
 
@@ -55,7 +51,6 @@ namespace Presentation.WebApi
 
             //// 3. *** REPO: SQL Server DB ***
             //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
             //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
@@ -89,26 +84,9 @@ namespace Presentation.WebApi
             //services.AddScoped<IRedisConfiguration, HardcodedRedisConfiguration>();
             //// DATABASE: SQL Server
             //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
             //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
-
-            // 7. *** DATABASE: PostgresDB ***
-            // REPO
-            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Database")));
-            services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
-            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
-
-            // -----------------------------------------------------------------------------
-            services.AddScoped<ICustomerNotifier, CustomerEmailer>();
-
-            services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
-            services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
-            services.AddScoped<IEmailer, NullEmailer>();
-            //services.AddScoped<IEmailer, AwsEmailer>();
-            //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
-            //services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

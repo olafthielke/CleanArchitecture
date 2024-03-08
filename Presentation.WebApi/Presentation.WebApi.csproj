@@ -9,17 +9,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
-    <ProjectReference Include="..\Data.Postgres\Data.Postgres.csproj" />
     <ProjectReference Include="..\Data.Proxy\Data.Proxy.csproj" />
     <ProjectReference Include="..\Data.Redis.Common\Data.Redis.Common.csproj" />
     <ProjectReference Include="..\Data.Redis.Specific\Data.Redis.Specific.csproj" />
     <ProjectReference Include="..\Data.SqlServer.Specific\Data.SqlServer.Specific.csproj" />
-    <ProjectReference Include="..\Notification.Email.AWS\Notification.Email.AWS.csproj" />
     <ProjectReference Include="..\Notification.Email\Notification.Email.csproj" />
     <ProjectReference Include="..\Notification.SMS\Notification.SMS.csproj" />
   </ItemGroup>
