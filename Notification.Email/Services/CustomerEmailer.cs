@@ -1,57 +1,66 @@
-﻿using System.Net.Mail;
+﻿using System;
+using System.Text;
 using System.Threading.Tasks;
+using Amazon;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Model;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
-using Notification.Email.Exceptions;
-using Notification.Email.Interfaces;
-using Notification.Email.Models;
 
-namespace Notification.Email.Services
+namespace Notification.Email.Services;
+
+public class CustomerEmailer : ICustomerNotifier
 {
-    public class CustomerEmailer(
-        IEmailTemplateRepository emailtemplateRepo,
-        IEmailConfiguration config,
-        IPlaceholderReplacer replacer,
-        IEmailer emailer)
-        : ICustomerNotifier
+    public async Task SendWelcomeMessage(Customer customer)
     {
-        private IEmailTemplateRepository EmailTemplateRepo { get; } = emailtemplateRepo;
-        private IEmailConfiguration Config { get; } = config;
-        private IPlaceholderReplacer Replacer { get; } = replacer;
-        private IEmailer Emailer { get; } = emailer;
+        var subject = $"Welcome to XYZ, {customer.FirstName}!";
 
-        private string FromAddress
+        var builder = new StringBuilder();
+
+        builder.AppendLine($"Hi {customer.FirstName},");
+        builder.AppendLine();
+        builder.AppendLine("Thank you for signing up for the latest and greatest news from XYZ!");
+        builder.AppendLine();
+        builder.AppendLine($"Your customer number is {customer.Id}.");
+        builder.AppendLine();
+        builder.AppendLine("We hope to make your purchasing experience easy!");
+        builder.AppendLine();
+        builder.AppendLine("Kind Regards,");
+        builder.AppendLine("The XYZ Customer Success Team");
+        var body = builder.ToString();
+
+        var fromAddress = "info@xyz.com";
+
+        using var awsClient = new AmazonSimpleEmailServiceClient(RegionEndpoint.APSoutheast2);
+
+        var email = new SendEmailRequest
         {
-            get
+            Source = fromAddress,
+            Destination = new Destination
             {
-                if (Config.FromAddress == null)
-                    throw new MissingFromEmailAddress();
-                return Config.FromAddress;
+                ToAddresses = [customer.EmailAddress]
+            },
+            Message = new Message
+            {
+                Subject = new Content(subject),
+                Body = new Body
+                {
+                    Text = new Content
+                    {
+                        Charset = "UTF-8",
+                        Data = body
+                    }
+                }
             }
-        }
+        };
 
-
-        public async Task SendWelcomeMessage(Customer customer)
+        try
         {
-            var template = await GetEmailTemplate("Customer Welcome");
-            var email = BuildEmail(template, customer);
-            await Emailer.Send(email);
+            var response = await awsClient.SendEmailAsync(email);
         }
-
-
-        private async Task<EmailTemplate> GetEmailTemplate(string templateName)
+        catch (AmazonSimpleEmailServiceException ex)
         {
-            var template = await EmailTemplateRepo.Get(templateName);
-            if (template == null)
-                throw new MissingEmailTemplate(templateName);
-            return template;
-        }
-
-        private MailMessage BuildEmail(EmailTemplate template, Customer customer)
-        {
-            var subject = Replacer.Replace(template.Subject, customer);
-            var body = Replacer.Replace(template.Body, customer);
-            return new MailMessage(FromAddress,customer.EmailAddress, subject, body);
+            Console.WriteLine("Sending email via AWS SES failed.");
         }
     }
 }
