@@ -54,9 +54,10 @@ namespace Presentation.WebApi
             // -----------------------------------------------------------------------------
 
             //// 3. *** REPO: SQL Server DB ***
-            //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
-            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            var connectionString = Configuration.GetConnectionString("SqlServer-Database");
+            services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
+            services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
+            services.AddTransient<ISqlServerConfiguration>(s => new SqlServerConfiguration(connectionString));
 
             // -----------------------------------------------------------------------------
 
@@ -96,19 +97,24 @@ namespace Presentation.WebApi
 
             // 7. *** DATABASE: PostgresDB ***
             // REPO
-            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Database")));
-            services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
-            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
+            //services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
+            //services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
+            //services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
 
             // -----------------------------------------------------------------------------
-            services.AddScoped<ICustomerNotifier, CustomerEmailer>();
+            //  Furthermore, options for ICustomerNotifier:
 
+            services.AddScoped<ICustomerNotifier, CustomerEmailer>();
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
             services.AddScoped<IEmailer, NullEmailer>();
             //services.AddScoped<IEmailer, AwsEmailer>();
             //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
             //services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
+
+
+            // 
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

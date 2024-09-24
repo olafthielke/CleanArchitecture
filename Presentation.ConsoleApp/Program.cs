@@ -65,7 +65,7 @@ namespace Presentation.ConsoleApp
 
         private static ICustomerDatabase SetupSqlServerCustomerDatabase()
         {
-            var config = new SqlServerConfiguration();
+            var config = new HardcodedSqlServerConfiguration();
             return new SqlServerCustomerDatabase(config);
         }
 

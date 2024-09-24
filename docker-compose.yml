@@ -1,17 +1,18 @@
-version: '3.4'
+name: clean-architecture
 
 services:
-  presentation.webapi:
-    image: ${DOCKER_REGISTRY-}presentationwebapi
+  webapi:
+    image: ${DOCKER_REGISTRY-}webapi
     build:
       context: .
       dockerfile: Presentation.WebApi/Dockerfile
     depends_on:
-      - postgres
+      - postgres-database
+      - sqlserver-database
 
-  postgres:
+  postgres-database:
     image: postgres:latest
-    container_name: postgres_container
+    container_name: postgres_database
     restart: always
     ports:
       - 5432:5432
@@ -19,6 +20,15 @@ services:
       - .env
     volumes:
       - ./dataset:/docker-entrypoint-initdb.d
+
+  sqlserver-database:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    container_name: sqlserver_database
+    restart: always
+    ports:
+      - 1433:1433
+    env_file:
+      - .env
 
   # pgadmin:
   #   image: dpage/pgadmin4:latest

@@ -1,8 +1,8 @@
 ﻿namespace Data.SqlServer.Specific
 {
-    public class SqlServerConfiguration : ISqlServerConfiguration
+    public class SqlServerConfiguration(string connectionString) : ISqlServerConfiguration
     {
         // TODO: Read the ConnectionString from config.
-        public string ConnectionString => "Server=.;Database=CleanArchitecture;Trusted_Connection=True;";
+        public string ConnectionString { get; } = connectionString;
     }
 }
