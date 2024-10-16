@@ -9,13 +9,13 @@ using Notification.Email.Models;
 namespace Notification.Email.Services
 {
     public class CustomerEmailer(
-        IEmailTemplateRepository emailtemplateRepo,
+        IEmailTemplateRepository emailTemplateRepo,
         IEmailConfiguration config,
         IPlaceholderReplacer replacer,
         IEmailer emailer)
         : ICustomerNotifier
     {
-        private IEmailTemplateRepository EmailTemplateRepo { get; } = emailtemplateRepo;
+        private IEmailTemplateRepository EmailTemplateRepo { get; } = emailTemplateRepo;
         private IEmailConfiguration Config { get; } = config;
         private IPlaceholderReplacer Replacer { get; } = replacer;
         private IEmailer Emailer { get; } = emailer;

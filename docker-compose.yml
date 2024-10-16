@@ -8,7 +8,7 @@ services:
       dockerfile: Presentation.WebApi/Dockerfile
     depends_on:
       - postgres-database
-      - sqlserver-database
+      # - sqlserver-database
 
   postgres-database:
     image: postgres:latest
@@ -21,14 +21,14 @@ services:
     volumes:
       - ./dataset:/docker-entrypoint-initdb.d
 
-  sqlserver-database:
-    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
-    container_name: sqlserver_database
-    restart: always
-    ports:
-      - 1433:1433
-    env_file:
-      - .env
+  # sqlserver-database:
+  #   image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+  #   container_name: sqlserver_database
+  #   restart: always
+  #   ports:
+  #     - 1433:1433
+  #   env_file:
+  #     - .env
 
   # pgadmin:
   #   image: dpage/pgadmin4:latest

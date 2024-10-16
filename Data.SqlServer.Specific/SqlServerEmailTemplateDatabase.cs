@@ -5,14 +5,9 @@ using Notification.Email.Models;
 
 namespace Data.SqlServer.Specific
 {
-    public class SqlServerEmailTemplateDatabase : IEmailTemplateRepository
+    public class SqlServerEmailTemplateDatabase(ISqlServerConfiguration config) : IEmailTemplateRepository
     {
-        private string ConnectionString { get; }
-
-        public SqlServerEmailTemplateDatabase(ISqlServerConfiguration config)
-        {
-            ConnectionString = config.ConnectionString;
-        }
+        private string ConnectionString { get; } = config.ConnectionString;
 
 
         public async Task<EmailTemplate> Get(string templateName)

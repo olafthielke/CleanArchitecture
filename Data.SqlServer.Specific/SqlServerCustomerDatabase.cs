@@ -7,14 +7,9 @@ using BusinessLogic.Interfaces;
 
 namespace Data.SqlServer.Specific
 {
-    public class SqlServerCustomerDatabase : ICustomerDatabase
+    public class SqlServerCustomerDatabase(ISqlServerConfiguration config) : ICustomerDatabase
     {
-        private string ConnectionString { get; }
-
-        public SqlServerCustomerDatabase(ISqlServerConfiguration config)
-        {
-            ConnectionString = config.ConnectionString;
-        }
+        private string ConnectionString { get; } = config.ConnectionString;
 
 
         public async Task<Customer> GetCustomer(string emailAddress)

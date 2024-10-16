@@ -6,15 +6,9 @@ using BusinessLogic.Interfaces;
 
 namespace BusinessLogic.UseCases
 {
-    public class GetAllCustomersUseCase : IGetAllCustomersUseCase
+    public class GetAllCustomersUseCase(ICustomerRepository repository) : IGetAllCustomersUseCase
     {
-        public ICustomerRepository Repository { get; }
-
-
-        public GetAllCustomersUseCase(ICustomerRepository repository)
-        {
-            Repository = repository;
-        }
+        public ICustomerRepository Repository { get; } = repository;
 
 
         public async Task<IEnumerable<Customer>> GetAllCustomers()

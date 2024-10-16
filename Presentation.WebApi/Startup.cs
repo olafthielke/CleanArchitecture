@@ -1,3 +1,4 @@
+using Amazon.SimpleEmail;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
 using BusinessLogic.UseCases;
@@ -54,10 +55,13 @@ namespace Presentation.WebApi
             // -----------------------------------------------------------------------------
 
             //// 3. *** REPO: SQL Server DB ***
-            var connectionString = Configuration.GetConnectionString("SqlServer-Database");
-            services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
-            services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
-            services.AddTransient<ISqlServerConfiguration>(s => new SqlServerConfiguration(connectionString));
+            //var connectionString = Configuration.GetConnectionString("SqlServer-Database");
+            //services.AddTransient<ISqlServerConfiguration>(s => new SqlServerConfiguration(connectionString));
+
+            //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
+            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
+
+            //services.AddScoped<ISqlServerConfiguration, HardcodedSqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
@@ -76,12 +80,12 @@ namespace Presentation.WebApi
             //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
             //// CACHE: In-Memory DB
             //services.AddScoped<ICustomerCache, InMemoryCustomerDatabase>();
-            //// DATABASE: JSON File
+            // DATABASE: JSON File
             //services.AddSingleton<ICustomerDatabase, JsonCustomerFile>();
 
             // -----------------------------------------------------------------------------
 
-            //// 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
+            // 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
             //// REPO
             //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
             //// CACHE: Redis
@@ -91,15 +95,15 @@ namespace Presentation.WebApi
             //// DATABASE: SQL Server
             //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
             //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
-            //services.AddScoped<ISqlServerConfiguration, SqlServerConfiguration>();
+            //services.AddScoped<ISqlServerConfiguration, HardcodedSqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
 
             // 7. *** DATABASE: PostgresDB ***
             // REPO
-            //services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
-            //services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
+            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
+            services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
+            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
 
             // -----------------------------------------------------------------------------
             //  Furthermore, options for ICustomerNotifier:
@@ -107,14 +111,14 @@ namespace Presentation.WebApi
             services.AddScoped<ICustomerNotifier, CustomerEmailer>();
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
-            services.AddScoped<IEmailer, NullEmailer>();
-            //services.AddScoped<IEmailer, AwsEmailer>();
-            //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
-            //services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
+            //services.AddScoped<IEmailer, NullEmailer>();
+            services.AddScoped<IEmailer, AwsEmailer>();
 
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+            services.AddAWSService<IAmazonSimpleEmailService>();
 
-            // 
-
+            services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
+            services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

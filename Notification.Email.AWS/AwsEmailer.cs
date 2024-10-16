@@ -2,31 +2,25 @@
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using BusinessLogic.Exceptions;
-using Notification.Email.AWS.Interfaces;
 using Notification.Email.Interfaces;
 
 namespace Notification.Email.AWS
 {
-    public class AwsEmailer(
-        IAmazonSimpleEmailServiceClientFactory clientFactory,
-        IAmazonConfiguration config)
-        : IEmailer
+    public class AwsEmailer (IAmazonSimpleEmailService awsClient) : IEmailer
     { 
-        private IAmazonSimpleEmailServiceClientFactory ClientFactory { get; } = clientFactory;
-        private IAmazonConfiguration Config { get; } = config;
+        private IAmazonSimpleEmailService AwsClient { get; } = awsClient;
 
         public async Task Send(MailMessage email)
         {
-            using var awsClient = ClientFactory.Create(Config.Region);
             var request = BuildSendEmailRequest(email);
-            await SendAwsEmail(awsClient, request);
+            await SendAwsEmail(request);
         }
 
-        private static async Task SendAwsEmail(IAmazonSimpleEmailService client, SendEmailRequest request)
+        private async Task SendAwsEmail(SendEmailRequest request)
         {
             try
             {
-                var _ = await client.SendEmailAsync(request);
+                var _ = await AwsClient.SendEmailAsync(request);
             }
             catch (AmazonSimpleEmailServiceException ex)
             {
