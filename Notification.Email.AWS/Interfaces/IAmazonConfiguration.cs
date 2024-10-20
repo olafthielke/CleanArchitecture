@@ -4,6 +4,8 @@ namespace Notification.Email.AWS.Interfaces
 {
     public interface IAmazonConfiguration
     {
-        RegionEndpoint Region { get; }
+        string Region { get; }
+        string AccessKey { get; }
+        string SecretKey { get; }
     }
 }

@@ -25,8 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.SqlServer.Specific", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5172939D-40DA-4134-96E2-EF5B4EA92F17}"
 	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
 		.env = .env
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification.Email.AWS", "Notification.Email.AWS\Notification.Email.AWS.csproj", "{7D533AE0-BC87-4912-A7EC-5D4E9962D179}"

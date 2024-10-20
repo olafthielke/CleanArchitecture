@@ -2,13 +2,14 @@
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using BusinessLogic.Exceptions;
+using Notification.Email.AWS.Interfaces;
 using Notification.Email.Interfaces;
 
 namespace Notification.Email.AWS
 {
-    public class AwsEmailer (IAmazonSimpleEmailService awsClient) : IEmailer
+    public class AwsEmailer(IAmazonSimpleEmailServiceClientFactory awsClientFactory) : IEmailer
     { 
-        private IAmazonSimpleEmailService AwsClient { get; } = awsClient;
+        private IAmazonSimpleEmailService AwsClient { get; } = awsClientFactory.Create();
 
         public async Task Send(MailMessage email)
         {

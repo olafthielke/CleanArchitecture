@@ -45,7 +45,7 @@ namespace Presentation.WebApi
             // -----------------------------------------------------------------------------
 
             //// 1. *** REPO: In-Memory DB ***
-            //services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            //ConfigureOnlyInMemoryCustomerDatabase(services);
 
             // -----------------------------------------------------------------------------
 
@@ -112,13 +112,26 @@ namespace Presentation.WebApi
             services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
             //services.AddScoped<IEmailer, NullEmailer>();
+
+            services.Configure<AmazonConfiguration>(Configuration.GetSection("AWS"));
+            services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
+
             services.AddScoped<IEmailer, AwsEmailer>();
 
-            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-            services.AddAWSService<IAmazonSimpleEmailService>();
+            //var awsConfig = Configuration.GetAWSOptions();
+            //services.AddDefaultAWSOptions(awsConfig);
 
-            services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
-            services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
+
+            //services.AddAWSService<IAmazonSimpleEmailService>();
+
+            //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
+
+        }
+
+        private static void ConfigureOnlyInMemoryCustomerDatabase(IServiceCollection services)
+        {
+            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
+            //services.AddSingleton<IEmailTemplateRepository, InMemoryEmailTemplateDatabase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

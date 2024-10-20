@@ -1,14 +1,22 @@
 ﻿using Amazon;
+using Amazon.Runtime;
 using Amazon.SimpleEmail;
+using Microsoft.Extensions.Options;
 using Notification.Email.AWS.Interfaces;
 
 namespace Notification.Email.AWS.Services
 {
-    public class AmazonSimpleEmailServiceClientFactory : IAmazonSimpleEmailServiceClientFactory
+    public class AmazonSimpleEmailServiceClientFactory(IOptions<AmazonConfiguration> config)
+        : IAmazonSimpleEmailServiceClientFactory
     {
-        public IAmazonSimpleEmailService Create(RegionEndpoint region)
+        private IAmazonConfiguration Config { get; } = config.Value;
+
+        public IAmazonSimpleEmailService Create()
         {
-            return new AmazonSimpleEmailServiceClient(region);
+            var region = RegionEndpoint.GetBySystemName(Config.Region);
+            var credentials = new BasicAWSCredentials(Config.AccessKey, Config.SecretKey);
+
+            return new AmazonSimpleEmailServiceClient(credentials, region);
         }
     }
 }
