@@ -8,13 +8,11 @@ namespace Data.Postgres
         private DataContext Context { get; } = context;
 
 
-        public async Task<EmailTemplate> Get(string templateName)
+        public async Task<EmailTemplate?> GetEmailTemplate(string templateName)
         {
             await Task.CompletedTask;
             var template = Context.email_templates.SingleOrDefault(t => t.name == templateName);
-            if (template == null)
-                return null;
-            return template.ToEmailTemplate();
+            return template?.ToEmailTemplate();
         }
     }
 }

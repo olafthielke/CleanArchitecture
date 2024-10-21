@@ -41,7 +41,7 @@ namespace Notification.Email.Services
 
         private async Task<EmailTemplate> GetEmailTemplate(string templateName)
         {
-            var template = await EmailTemplateRepo.Get(templateName);
+            var template = await EmailTemplateRepo.GetEmailTemplate(templateName);
             if (template == null)
                 throw new MissingEmailTemplate(templateName);
             return template;

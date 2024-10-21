@@ -42,7 +42,7 @@ namespace Tests.Email
             // Arrange
             var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", toAddress);
             var template = new EmailTemplate("Customer Welcome", "Welcome to XYZ Corp, {{FirstName}}!", "Hi {{FirstName}}, ...");
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(template);
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGetEmailTemplate(template);
             var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(fromAddress);
             var mockReplacer = new Mock<IPlaceholderReplacer>();
             mockReplacer.Setup(r => r.Replace("Welcome to XYZ Corp, {{FirstName}}!", customer))
@@ -62,22 +62,22 @@ namespace Tests.Email
 
         private CustomerEmailer SetupCustomerEmailerWithoutEmailTemplate()
         {
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(null);
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGetEmailTemplate(null);
             return new CustomerEmailer(mockEmailTemplateRepo.Object, null, null, null);
         }
 
         private CustomerEmailer SetupCustomerEmailerWithoutFromEmailAddress()
         {
-            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGet(new EmailTemplate("Customer Welcome", "Subject", "Body"));
+            var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGetEmailTemplate(new EmailTemplate("Customer Welcome", "Subject", "Body"));
             var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(null);
             var mockReplacer = new Mock<IPlaceholderReplacer>();
             return new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, mockReplacer.Object, null);
         }
 
-        private static Mock<IEmailTemplateRepository> SetupMockEmailTemplateRepoToGet(EmailTemplate template)
+        private static Mock<IEmailTemplateRepository> SetupMockEmailTemplateRepoToGetEmailTemplate(EmailTemplate template)
         {
             var mockEmailTemplateRepo = new Mock<IEmailTemplateRepository>();
-            mockEmailTemplateRepo.Setup(x => x.Get("Customer Welcome"))
+            mockEmailTemplateRepo.Setup(x => x.GetEmailTemplate("Customer Welcome"))
                 .ReturnsAsync(template);
             return mockEmailTemplateRepo;
         }

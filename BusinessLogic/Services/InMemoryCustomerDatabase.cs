@@ -8,7 +8,7 @@ namespace BusinessLogic.Services
 {
     public class InMemoryCustomerDatabase : ICustomerDatabase, ICustomerCache
     {
-        private static List<Customer> Customers { get; } = new List<Customer>();
+        private static List<Customer> Customers { get; } = [];
 
         public async Task<Customer> GetCustomer(string emailAddress)
         {

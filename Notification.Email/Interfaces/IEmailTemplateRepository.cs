@@ -5,6 +5,6 @@ namespace Notification.Email.Interfaces
 {
     public interface IEmailTemplateRepository
     {
-        Task<EmailTemplate> Get(string templateName);
+        Task<EmailTemplate> GetEmailTemplate(string templateName);
     }
 }

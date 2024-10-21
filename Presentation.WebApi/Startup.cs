@@ -1,3 +1,4 @@
+using System.Linq;
 using Amazon.SimpleEmail;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
@@ -45,7 +46,7 @@ namespace Presentation.WebApi
             // -----------------------------------------------------------------------------
 
             //// 1. *** REPO: In-Memory DB ***
-            //ConfigureOnlyInMemoryCustomerDatabase(services);
+            ConfigureInMemoryDatabases(services);
 
             // -----------------------------------------------------------------------------
 
@@ -99,11 +100,11 @@ namespace Presentation.WebApi
 
             // -----------------------------------------------------------------------------
 
-            // 7. *** DATABASE: PostgresDB ***
-            // REPO
-            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
-            services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
-            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
+            //// 7. *** DATABASE: PostgresDB ***
+            //// REPO
+            //services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
+            //services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
+            //services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
 
             // -----------------------------------------------------------------------------
             //  Furthermore, options for ICustomerNotifier:
@@ -128,10 +129,11 @@ namespace Presentation.WebApi
 
         }
 
-        private static void ConfigureOnlyInMemoryCustomerDatabase(IServiceCollection services)
+        private static void ConfigureInMemoryDatabases(IServiceCollection services)
         {
             services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
-            //services.AddSingleton<IEmailTemplateRepository, InMemoryEmailTemplateDatabase>();
+
+            services.AddSingleton<IEmailTemplateRepository, InMemoryEmailTemplateDatabase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -10,7 +10,7 @@ namespace Data.SqlServer.Specific
         private string ConnectionString { get; } = config.ConnectionString;
 
 
-        public async Task<EmailTemplate> Get(string templateName)
+        public async Task<EmailTemplate> GetEmailTemplate(string templateName)
         {
             EmailTemplate template = null;
             await using var connection = new SqlConnection(ConnectionString);
@@ -21,8 +21,6 @@ namespace Data.SqlServer.Specific
             await using var reader = await cmd.ExecuteReaderAsync();
             while (reader.Read())
                 template = ReadEmailTemplate(reader);
-
-            await connection.DisposeAsync();
 
             return template;
         }
