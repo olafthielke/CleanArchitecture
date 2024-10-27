@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Notification.Common\Notification.Common.csproj" />
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\Notification.Common\Notification.Common.csproj" />
   </ItemGroup>
 
 </Project>
