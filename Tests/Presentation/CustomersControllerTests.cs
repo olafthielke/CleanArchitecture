@@ -85,25 +85,25 @@ namespace Tests.Presentation
         //}
 
 
-        private static readonly ApiCustomerRegistration ApiRegoAdamAnt = new ApiCustomerRegistration("Adam", "Ant", "adam@ant.co.uk");
-        private static readonly ApiCustomerRegistration ApiRegoBobSmith = new ApiCustomerRegistration("Bob", "Smith", "bob@smith.com");
+        private static readonly ApiCustomerRegistration ApiRegoAdamAnt = new("Adam", "Ant", "adam@ant.co.uk", "+4412345678");
+        private static readonly ApiCustomerRegistration ApiRegoBobSmith = new("Bob", "Smith", "bob@smith.com", "+4498765432");
 
-        private static readonly CustomerRegistration RegoAdamAnt = new CustomerRegistration("Adam", "Ant", "adam@ant.co.uk");
-        private static readonly CustomerRegistration RegoBobSmith = new CustomerRegistration("Bob", "Smith", "bob@smith.com");
+        private static readonly CustomerRegistration RegoAdamAnt = new("Adam", "Ant", "adam@ant.co.uk", "+4412345678");
+        private static readonly CustomerRegistration RegoBobSmith = new("Bob", "Smith", "bob@smith.com", "+4498765432");
 
-        private static readonly Customer CustomerAdamAnt = new Customer(Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk");
-        private static readonly Customer CustomerBobSmith = new Customer(Guid.NewGuid(), "Bob", "Smith", "bob@smith.com");
+        private static readonly Customer CustomerAdamAnt = new(Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk", "+4412345678");
+        private static readonly Customer CustomerBobSmith = new(Guid.NewGuid(), "Bob", "Smith", "bob@smith.com", "+4498765432");
 
         public static IEnumerable<object[]> GetApiRegistrationsAndRegistrations()
         {
-            yield return new object[] { ApiRegoAdamAnt, RegoAdamAnt };
-            yield return new object[] { ApiRegoBobSmith, RegoBobSmith };
+            yield return [ApiRegoAdamAnt, RegoAdamAnt];
+            yield return [ApiRegoBobSmith, RegoBobSmith];
         }
 
         public static IEnumerable<object[]> GetApiRegistrationsAndCustomers()
         {
-            yield return new object[] { ApiRegoAdamAnt, CustomerAdamAnt };
-            yield return new object[] { ApiRegoBobSmith, CustomerBobSmith };
+            yield return [ApiRegoAdamAnt, CustomerAdamAnt];
+            yield return [ApiRegoBobSmith, CustomerBobSmith];
         }
 
 

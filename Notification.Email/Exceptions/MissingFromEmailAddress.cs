@@ -2,10 +2,5 @@
 
 namespace Notification.Email.Exceptions
 {
-    public class MissingFromEmailAddress : Exception
-    {
-        public MissingFromEmailAddress() 
-            : base("No valid FromEmailAddress was found.")
-        { }
-    }
+    public class MissingFromEmailAddress() : Exception("No valid FromEmailAddress was found.");
 }

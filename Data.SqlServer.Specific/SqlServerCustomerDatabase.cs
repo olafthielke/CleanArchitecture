@@ -81,7 +81,7 @@ namespace Data.SqlServer.Specific
             var lastName = reader["LastName"].ToString();
             var email = reader["EmailAddress"].ToString();
 
-            return new Customer(guid, firstName, lastName, email);
+            return new Customer(guid, firstName, lastName, email, "");
         }
     }
 }

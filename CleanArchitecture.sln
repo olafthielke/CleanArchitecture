@@ -35,6 +35,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Postgres", "Data.Postg
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification.SMS.Twilio", "..\Notification.SMS.Twilio\Notification.SMS.Twilio.csproj", "{107A555F-C1C3-42DE-B666-74F14F45F686}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notification.Common", "..\Notification.Common\Notification.Common.csproj", "{3789BECA-92EB-4815-A5A2-7B56E22D9691}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +97,14 @@ Global
 		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83A5A88E-D2E6-4756-AB5B-9B01DDF2ED73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{107A555F-C1C3-42DE-B666-74F14F45F686}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{107A555F-C1C3-42DE-B666-74F14F45F686}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{107A555F-C1C3-42DE-B666-74F14F45F686}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{107A555F-C1C3-42DE-B666-74F14F45F686}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3789BECA-92EB-4815-A5A2-7B56E22D9691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3789BECA-92EB-4815-A5A2-7B56E22D9691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3789BECA-92EB-4815-A5A2-7B56E22D9691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3789BECA-92EB-4815-A5A2-7B56E22D9691}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

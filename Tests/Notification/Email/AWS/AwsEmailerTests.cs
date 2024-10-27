@@ -15,7 +15,7 @@ using System;
 using FluentAssertions;
 using BusinessLogic.Exceptions;
 
-namespace Tests.Email.AWS
+namespace Tests.Notification.Email.AWS
 {
     public class AwsEmailerTests
     {

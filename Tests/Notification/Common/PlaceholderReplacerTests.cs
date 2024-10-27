@@ -2,9 +2,9 @@
 using Xunit;
 using FluentAssertions;
 using BusinessLogic.Entities;
-using Notification.Email.Services;
+using Notification.Common.Services;
 
-namespace Tests.Email
+namespace Tests.Notification.Common
 {
     public class PlaceholderReplacerTests
     {
@@ -25,7 +25,7 @@ namespace Tests.Email
         [InlineData("ABC 123")]
         public void Given_No_Placeholders_When_Call_Replace_Then_Return_Input(string input)
         {
-            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", "fred@flintstones.com");
+            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", "fred@flintstones.com", "+6412345678");
             var replacer = new PlaceholderReplacer();
             var result = replacer.Replace(input, customer);
             result.Should().Be(input);
@@ -37,7 +37,7 @@ namespace Tests.Email
         [InlineData("Number of nodes: [[NumberOfNodes]]")]
         public void Given_NonMatching_Placeholders_When_Call_Replace_Then_Return_Input(string input)
         {
-            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", "fred@flintstones.com");
+            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", "fred@flintstones.com", "+6412345678");
             var replacer = new PlaceholderReplacer();
             var result = replacer.Replace(input, customer);
             result.Should().Be(input);
@@ -55,19 +55,19 @@ namespace Tests.Email
         public void Given_FirstName_Placeholder_When_Call_Replace_Then_Replace_With_FirstName_Property_Value(
             string input, string firstName, string output)
         {
-            var customer = new Customer(Guid.NewGuid(), firstName, "Flintstone", "fred@flintstones.com");
+            var customer = new Customer(Guid.NewGuid(), firstName, "Flintstone", "fred@flintstones.com", "+6412345678");
             var replacer = new PlaceholderReplacer();
             var result = replacer.Replace(input, customer);
             result.Should().Be(output);
         }
 
         [Theory]
-        [InlineData("Hi [[FirstName]] [[LastName]]!", "12345678-DF26-4D03-8378-1B6501C109E9", "Fred", "Flintstone", "fred@flintstones.com", "Hi Fred Flintstone!")]
-        [InlineData("The email is '[[EmailAddress]]' for Customer with Id: ([[Id]])", "abcdef00-1a29-44f4-b22b-7c509461503c", "Barney", "Rubble", "barney@rubbles.com", "The email is 'barney@rubbles.com' for Customer with Id: (abcdef00-1a29-44f4-b22b-7c509461503c)")]
+        [InlineData("Hi [[FirstName]] [[LastName]]!", "12345678-DF26-4D03-8378-1B6501C109E9", "Fred", "Flintstone", "fred@flintstones.com", "+6412345678", "Hi Fred Flintstone!")]
+        [InlineData("The email and mobile are '[[EmailAddress]]' and '[[MobileNumber]]' for Customer with Id: ([[Id]])", "abcdef00-1a29-44f4-b22b-7c509461503c", "Barney", "Rubble", "barney@rubbles.com", "+4498765432", "The email and mobile are 'barney@rubbles.com' and '+4498765432' for Customer with Id: (abcdef00-1a29-44f4-b22b-7c509461503c)")]
         public void Given_Multiple_Placeholders_When_Call_Replace_Then_Replace_All_Placeholder_With_Property_Values(
-            string input, string id, string firstName, string lastName, string emailAddress, string output)
+            string input, string id, string firstName, string lastName, string emailAddress, string mobileNumber, string output)
         {
-            var customer = new Customer(new Guid(id), firstName, lastName, emailAddress);
+            var customer = new Customer(new Guid(id), firstName, lastName, emailAddress, mobileNumber);
             var replacer = new PlaceholderReplacer();
             var result = replacer.Replace(input, customer);
             output.Should().Be(result);

@@ -5,13 +5,13 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using BusinessLogic.Entities;
+using Notification.Common.Interfaces;
 using Notification.Email.Exceptions;
 using Notification.Email.Interfaces;
 using Notification.Email.Models;
 using Notification.Email.Services;
 
-
-namespace Tests.Email
+namespace Tests.Notification.Email
 {
     public class CustomerEmailerTests
     {
@@ -31,34 +31,36 @@ namespace Tests.Email
             await AssertThrowsMissingFromEmailAddress(Send);
         }
 
-
         [Theory]
         [InlineData("sender@test.com", "fred@flintstones.net")]
         [InlineData("donotreply@blah.mil", "fred.flintstones@outlook.com")]
         [InlineData("from@example.net", "fredflintstone@gmail.com")]
         public async Task When_Call_SendWelcomeMessage_Then_Send_Email(string fromAddress, string toAddress)
         {
-            // TODO: More tidying up.
+            // TODO: Tidy up
             // Arrange
-            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", toAddress);
+            var customer = new Customer(Guid.NewGuid(), "Fred", "Flintstone", toAddress, "+6412345678");
             var template = new EmailTemplate("Customer Welcome", "Welcome to XYZ Corp, {{FirstName}}!", "Hi {{FirstName}}, ...");
             var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGetEmailTemplate(template);
-            var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(fromAddress);
+            var emailConfig = new EmailConfiguration { FromAddress = fromAddress };
             var mockReplacer = new Mock<IPlaceholderReplacer>();
             mockReplacer.Setup(r => r.Replace("Welcome to XYZ Corp, {{FirstName}}!", customer))
                 .Returns("Welcome to XYZ Corp, Fred!");
             mockReplacer.Setup(r => r.Replace("Hi {{FirstName}}, ...", customer))
                 .Returns("Hi Fred, ...");
             var emailer = new Mock<IEmailer>();
-            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, mockReplacer.Object, emailer.Object);
+            var customerEmailer = new CustomerEmailer(mockEmailTemplateRepo.Object, emailConfig, mockReplacer.Object, emailer.Object);
+
             // Act
             await customerEmailer.SendWelcomeMessage(customer);
+
             // Assert
             emailer.Verify(e => e.Send(It.Is<MailMessage>(m => m.From.Address == fromAddress &&
                                                                m.To[0].Address == toAddress &&
                                                                m.Subject == "Welcome to XYZ Corp, Fred!" &&
                                                                m.Body == "Hi Fred, ...")));
         }
+
 
         private CustomerEmailer SetupCustomerEmailerWithoutEmailTemplate()
         {
@@ -69,9 +71,9 @@ namespace Tests.Email
         private CustomerEmailer SetupCustomerEmailerWithoutFromEmailAddress()
         {
             var mockEmailTemplateRepo = SetupMockEmailTemplateRepoToGetEmailTemplate(new EmailTemplate("Customer Welcome", "Subject", "Body"));
-            var mockEmailConfig = SetupMockEmailConfigToGetFromEmailAddress(null);
+            var emailConfig = new EmailConfiguration { FromAddress = null };
             var mockReplacer = new Mock<IPlaceholderReplacer>();
-            return new CustomerEmailer(mockEmailTemplateRepo.Object, mockEmailConfig.Object, mockReplacer.Object, null);
+            return new CustomerEmailer(mockEmailTemplateRepo.Object, emailConfig, mockReplacer.Object, null);
         }
 
         private static Mock<IEmailTemplateRepository> SetupMockEmailTemplateRepoToGetEmailTemplate(EmailTemplate template)
@@ -81,14 +83,6 @@ namespace Tests.Email
                 .ReturnsAsync(template);
             return mockEmailTemplateRepo;
         }
-
-        private static Mock<IEmailConfiguration> SetupMockEmailConfigToGetFromEmailAddress(string fromAddress)
-        {
-            var mockEmailConfig = new Mock<IEmailConfiguration>();
-            mockEmailConfig.Setup(x => x.FromAddress).Returns(fromAddress);
-            return mockEmailConfig;
-        }
-
 
         private static async Task AssertThrowsMissingEmailTemplate(Func<Task> send)
         {

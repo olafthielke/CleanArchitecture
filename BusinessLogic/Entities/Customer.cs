@@ -8,17 +8,19 @@ namespace BusinessLogic.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string EmailAddress { get; set; }
+        public string MobileNumber { get; set; }
 
         // Require parameterless constructor for serialisation.
         public Customer()
         { }
 
-        public Customer(Guid id, string firstName, string lastName, string emailAddress)
+        public Customer(Guid id, string firstName, string lastName, string emailAddress, string mobileNumber)
         {
             Id = id;
             FirstName = firstName;
             LastName = lastName;
             EmailAddress = emailAddress;
+            MobileNumber = mobileNumber;
         }
     }
 }

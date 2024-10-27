@@ -13,11 +13,11 @@ namespace Tests.BusinessLogic
 {
     /// <summary>
     /// Unit tests for the RegisterCustomerUseCase class.
-    /// Unit test names are in the Given_When_Then style and thus clearly
+    /// Unit test names are in the Given_When_Then style, and clearly
     /// describe business requirements.
-    /// It's imperative to keep unit tests as concise as possible. Preferably
-    /// just 3 lines. Unit tests should be even clearer than the implementation
-    /// code.
+    /// It's imperative to keep unit tests as concise and readable as possible.
+    /// Preferably just 3 lines.
+    /// Unit tests should be even clearer than the implementation code.
     /// </summary>
     public class RegisterCustomerUseCaseTests
     {
@@ -38,7 +38,7 @@ namespace Tests.BusinessLogic
         public async Task Given_Missing_FirstName_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string firstName)
         {
             var useCase = SetupUseCase();
-            var registration = new CustomerRegistration(firstName, "Smith", "bob@smith.com");
+            var registration = new CustomerRegistration(firstName, "Smith", "bob@smith.com", "+6412345678");
             Task<Customer> Register() => useCase.RegisterCustomer(registration);
             await ThrowsValidationExceptionWithSingleError(Register, "Missing first name.");
         }
@@ -53,8 +53,8 @@ namespace Tests.BusinessLogic
         public async Task Given_Missing_LastName_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string lastName)
         {
             var useCase = SetupUseCase();
-            var registration = new CustomerRegistration("Bob", lastName, "bob@smith.com");
-            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            var registration = new CustomerRegistration("Bob", lastName, "bob@smith.com", "+6412345678");
+            Task <Customer> Register() => useCase.RegisterCustomer(registration);
             await ThrowsValidationExceptionWithSingleError(Register, "Missing last name.");
         }
 
@@ -67,19 +67,32 @@ namespace Tests.BusinessLogic
         public async Task Given_Missing_EmailAddress_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string emailAddress)
         {
             var useCase = SetupUseCase();
-            var registration = new CustomerRegistration("Bob", "Smith", emailAddress);
+            var registration = new CustomerRegistration("Bob", "Smith", emailAddress, "+6412345678");
             Task<Customer> Register() => useCase.RegisterCustomer(registration);
             await ThrowsValidationExceptionWithSingleError(Register, "Missing email address.");
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("    ")]
+        public async Task Given_Missing_MobileNumber_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Error(string mobileNumber)
+        {
+            var useCase = SetupUseCase();
+            var registration = new CustomerRegistration("Bob", "Smith", "bob@smith.com", mobileNumber);
+            Task<Customer> Register() => useCase.RegisterCustomer(registration);
+            await ThrowsValidationExceptionWithSingleError(Register, "Missing mobile number.");
         }
 
         [Fact]
         public async Task Given_Missing_Multiple_Customer_Fields_When_Call_RegisterCustomer_Then_Throw_ValidationException_For_Errors()
         {
             var useCase = SetupUseCase();
-            var registration = new CustomerRegistration(null, "  ", "");
+            var registration = new CustomerRegistration(null, "", " ", "   ");
             Task<Customer> Register() => useCase.RegisterCustomer(registration);
             await VerifyThrowsValidationException(Register, 
-                "Missing first name.", "Missing last name.", "Missing email address.");
+                "Missing first name.", "Missing last name.", "Missing email address.", "Missing mobile number.");
         }
 
         [Theory]
@@ -130,23 +143,23 @@ namespace Tests.BusinessLogic
 
 
 
-        private static readonly CustomerRegistration RegoAdamAnt = new ("Adam", "Ant", "adam@ant.co.uk");
-        private static readonly CustomerRegistration RegoBobSmith = new ("Bob", "Smith", "bob@smith.com");
+        private static readonly CustomerRegistration RegoAdamAnt = new ("Adam", "Ant", "adam@ant.co.uk", "+4412345678");
+        private static readonly CustomerRegistration RegoBobSmith = new ("Bob", "Smith", "bob@smith.com", "+4498765432");
 
 
         public static IEnumerable<object[]> GetRegistrations()
         {
-            yield return new object[] { RegoAdamAnt };
-            yield return new object[] { RegoBobSmith };
+            yield return [RegoAdamAnt];
+            yield return [RegoBobSmith];
         }
 
-        private static readonly Customer CustomerAdamAnt = new (Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk");
-        private static readonly Customer CustomerBobSmith = new (Guid.NewGuid(), "Bob", "Smith", "bob@smith.com");
+        private static readonly Customer CustomerAdamAnt = new (Guid.NewGuid(), "Adam", "Ant", "adam@ant.co.uk", "+4412345678");
+        private static readonly Customer CustomerBobSmith = new (Guid.NewGuid(), "Bob", "Smith", "bob@smith.com", "+4498765432");
 
         public static IEnumerable<object[]> GetRegistrationsWithCustomers()
         {
-            yield return new object[] { RegoAdamAnt, CustomerAdamAnt };
-            yield return new object[] { RegoBobSmith, CustomerBobSmith };
+            yield return [RegoAdamAnt, CustomerAdamAnt];
+            yield return [RegoBobSmith, CustomerBobSmith];
         }
 
 
@@ -202,6 +215,7 @@ namespace Tests.BusinessLogic
             customer.FirstName.Should().Be(registration.FirstName);
             customer.LastName.Should().Be(registration.LastName);
             customer.EmailAddress.Should().Be(registration.EmailAddress);
+            customer.MobileNumber.Should().Be(registration.MobileNumber);
         }
 
         private static void VerifySaveCustomerToRepository(RegisterCustomerUseCase useCase, Customer customer)

@@ -1,27 +1,29 @@
-using System.Linq;
-using Amazon.SimpleEmail;
+using System;
+using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
 using BusinessLogic.UseCases;
-using Data.Proxy;
-using Data.Redis.Common;
-using Data.Redis.Common.Interfaces;
-using Data.Redis.Specific;
-using Data.SqlServer.Specific;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Notification.Email.AWS;
 using Notification.Email.AWS.Interfaces;
 using Notification.Email.AWS.Services;
 using Notification.Email.Interfaces;
 using Notification.Email.Services;
-using Notification.SMS;
 using Microsoft.EntityFrameworkCore;
 using Data.Postgres;
+using Notification.Common;
+using Notification.Common.Interfaces;
+using Notification.Common.Services;
+using Notification.Email.Models;
+using Notification.SMS.Interfaces;
+using Notification.SMS.Models;
+using Notification.SMS.Services;
+using Notification.SMS.Twilio;
+using Amazon.SimpleEmail.Model;
 
 namespace Presentation.WebApi
 {
@@ -34,19 +36,23 @@ namespace Presentation.WebApi
         {
             services.AddControllers();
 
-            services.AddScoped<IGetAllCustomersUseCase, GetAllCustomersUseCase>();
-            services.AddScoped<IRegisterCustomerUseCase, RegisterCustomerUseCase>();
+            // CLEAN ARCHITECTURE - IT'S LIKE LEGO FOR ADULTS!
 
-            // IT'S LIKE LEGO FOR ADULTS!
+            Configure_UseCases(services);
 
-            // Uncomment only one of the 6 numbered and separated blocks to radically alter 
+            Configure_CustomerRepository(services);
+
+            Configure_CustomerNotifier(services);
+
+
+            // Uncomment only one of the numbered and separated blocks to radically alter 
             // the behaviour of the customer data persistence mechanisms, from a simple
             // in-memory database, up to a Redis cache / SQL database combination.
 
             // -----------------------------------------------------------------------------
 
             //// 1. *** REPO: In-Memory DB ***
-            ConfigureInMemoryDatabases(services);
+            //ConfigureInMemoryDatabases(services);
 
             // -----------------------------------------------------------------------------
 
@@ -99,41 +105,6 @@ namespace Presentation.WebApi
             //services.AddScoped<ISqlServerConfiguration, HardcodedSqlServerConfiguration>();
 
             // -----------------------------------------------------------------------------
-
-            //// 7. *** DATABASE: PostgresDB ***
-            //// REPO
-            //services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
-            //services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
-
-            // -----------------------------------------------------------------------------
-            //  Furthermore, options for ICustomerNotifier:
-
-            services.AddScoped<ICustomerNotifier, CustomerEmailer>();
-            services.AddScoped<IEmailConfiguration, HardcodedEmailConfiguration>();
-            services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
-            //services.AddScoped<IEmailer, NullEmailer>();
-
-            services.Configure<AmazonConfiguration>(Configuration.GetSection("AWS"));
-            services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
-
-            services.AddScoped<IEmailer, AwsEmailer>();
-
-            //var awsConfig = Configuration.GetAWSOptions();
-            //services.AddDefaultAWSOptions(awsConfig);
-
-
-            //services.AddAWSService<IAmazonSimpleEmailService>();
-
-            //services.AddScoped<IAmazonConfiguration, HardcodedAmazonConfiguration>();
-
-        }
-
-        private static void ConfigureInMemoryDatabases(IServiceCollection services)
-        {
-            services.AddSingleton<ICustomerRepository, InMemoryCustomerDatabase>();
-
-            services.AddSingleton<IEmailTemplateRepository, InMemoryEmailTemplateDatabase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -154,6 +125,189 @@ namespace Presentation.WebApi
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private static void Configure_UseCases(IServiceCollection services)
+        {
+            services.AddScoped<IGetAllCustomersUseCase, GetAllCustomersUseCase>();
+            services.AddScoped<IRegisterCustomerUseCase, RegisterCustomerUseCase>();
+        }
+
+        // ICustomerRepository configuration
+        private void Configure_CustomerRepository(IServiceCollection services)
+        {
+            //Configure_InMemoryDatabases(services);
+
+            Configure_PostgresDatabase(services);
+        }
+
+        private static void Configure_InMemoryDatabases(IServiceCollection services)
+        {
+            services.AddSingleton<ICustomerRepository>(new InMemoryCustomerDatabase());
+
+            var emailTemplate = new EmailTemplate(Templates.CustomerWelcome, "Welcome [[FirstName]] [[LastName]]!", "Hi [[FirstName]], \n\n It's good to have you with us! ...");
+            var emailTemplates = new InMemoryEmailTemplateDatabase(emailTemplate);
+            services.AddSingleton<IEmailTemplateRepository>(emailTemplates);
+
+            var smsTemplate = new SmsTemplate(Templates.CustomerWelcome, "Hi. Thx for joining us, [[FirstName]]! ...");
+            var smsTemplates = new InMemorySmsTemplateDatabase(smsTemplate);
+            services.AddSingleton<ISmsTemplateRepository>(smsTemplates);
+        }
+
+        private void Configure_PostgresDatabase(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
+
+            services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
+            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
+            services.AddScoped<ISmsTemplateRepository, PostgresSmsTemplateDatabase>();
+        }
+
+
+        // ICustomerNotifier configuration
+        private void Configure_CustomerNotifier(IServiceCollection services)
+        {
+            //Configure_NullCustomerNotifier(services);
+
+            //Configure_CustomerEmailer(services);
+
+            Configure_CustomerSmsSender(services);
+        }
+
+        private static void Configure_NullCustomerNotifier(IServiceCollection services)
+        {
+            services.AddScoped<ICustomerNotifier, NullCustomerNotifier>();
+        }
+
+        private void Configure_CustomerEmailer(IServiceCollection services)
+        {
+            services.AddScoped<ICustomerNotifier, CustomerEmailer>();
+
+            Configure_EmailConfiguration(services);
+
+            services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
+
+            Configure_Emailer(services);
+        }
+
+        private void Configure_EmailConfiguration(IServiceCollection services)
+        {
+            //Configure_HardcodedEmailConfiguration(services);
+
+            Configure_DynamicEmailConfiguration(services);
+        }
+
+        private static void Configure_HardcodedEmailConfiguration(IServiceCollection services)
+        {
+            var config = new EmailConfiguration { FromAddress = "olaf@codecoach.co.nz" };
+
+            services.AddSingleton(config);
+        }
+
+        private void Configure_DynamicEmailConfiguration(IServiceCollection services)
+        {
+            var config = new EmailConfiguration();
+
+            Configuration.Bind("Email", config);
+
+            services.AddSingleton(config);
+        }
+
+        private void Configure_Emailer(IServiceCollection services)
+        {
+            //Configure_NullEmailer(services);
+
+            Configure_AwsEmailer(services);
+
+            //Configure_SmtpEmailer(services); // TODO
+        }
+
+        private static void Configure_NullEmailer(IServiceCollection services)
+        {
+            services.AddScoped<IEmailer, NullEmailer>();
+        }
+
+        private void Configure_AwsEmailer(IServiceCollection services)
+        {
+            services.AddScoped<IEmailer, AwsEmailer>();
+
+            services.AddScoped<IAmazonSimpleEmailServiceClientFactory, AmazonSimpleEmailServiceClientFactory>();
+
+            Configure_AmazonConfiguration(services);
+        }
+
+        private void Configure_AmazonConfiguration(IServiceCollection services)
+        {
+            var config = new AmazonConfiguration();
+
+            Configuration.Bind("AWS", config);
+
+            services.AddSingleton(config);
+        }
+
+        private void Configure_CustomerSmsSender(IServiceCollection services)
+        {
+            services.AddScoped<ICustomerNotifier, CustomerSmsSender>();
+
+            Configure_SmsConfiguration(services);
+
+            services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
+
+            Configure_SmsSender(services);
+        }
+
+        private void Configure_SmsConfiguration(IServiceCollection services)
+        {
+            Configure_HardcodedSmsConfiguration(services);
+
+            //Configure_DynamicSmsConfiguration(services);
+        }
+
+        private static void Configure_HardcodedSmsConfiguration(IServiceCollection services)
+        {
+            var config = new SmsConfiguration { FromNumber = "+13392012134" };
+
+            services.AddSingleton(config);
+        }
+
+        private void Configure_DynamicSmsConfiguration(IServiceCollection services)
+        {
+            var config = new SmsConfiguration();
+
+            Configuration.Bind("SMS", config);
+
+            services.AddSingleton(config);
+        }
+
+        private void Configure_SmsSender(IServiceCollection services)
+        {
+            //Configure_NullSmsSender(services);
+
+            Configure_TwilioSmsSender(services);
+
+            //ConfigureOtherSmsSender();
+        }
+
+        private void Configure_NullSmsSender(IServiceCollection services)
+        {
+            services.AddScoped<ISmsSender, NullSmsSender>();
+        }
+
+        private void Configure_TwilioSmsSender(IServiceCollection services)
+        {
+            services.AddScoped<ISmsSender, TwilioSmsSender>();
+
+            //services.Configure<TwilioConfiguration>(Configuration.GetSection("Twilio"));
+            Configure_TwilioConfiguration(services);
+        }
+
+        private void Configure_TwilioConfiguration(IServiceCollection services)
+        {
+            var config = new TwilioConfiguration();
+
+            Configuration.Bind("Twilio", config);
+
+            services.AddSingleton(config);
         }
     }
 }

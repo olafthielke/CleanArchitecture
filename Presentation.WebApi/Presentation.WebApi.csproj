@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Notification.SMS.Twilio\Notification.SMS.Twilio.csproj" />
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
     <ProjectReference Include="..\Data.Postgres\Data.Postgres.csproj" />
     <ProjectReference Include="..\Data.Proxy\Data.Proxy.csproj" />

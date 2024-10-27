@@ -10,6 +10,13 @@ namespace BusinessLogic.Services
     {
         private static List<Customer> Customers { get; } = [];
 
+        public InMemoryCustomerDatabase() { }
+
+        public InMemoryCustomerDatabase(Customer customer)
+        {
+            Customers.Add(customer);
+        }
+
         public async Task<Customer> GetCustomer(string emailAddress)
         {
             await Task.CompletedTask;

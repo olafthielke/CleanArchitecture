@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Include="dataset\docker-entrypoint-initdb.d\Customers.csv" />
     <None Include="dataset\docker-entrypoint-initdb.d\EmailTemplates.csv" />
+    <None Include="dataset\docker-entrypoint-initdb.d\SmsTemplates.csv" />
     <None Include="dataset\init.sql" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>

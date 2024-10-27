@@ -37,7 +37,7 @@ namespace Presentation.ConsoleApp
         {
             // Customer Registrations
             //return new CustomerRegistration("Fred", "Flintstone", "fred@flintstones.net");
-            return new CustomerRegistration("Barney", "Rubble", "barney@rubbles.rock");
+            return new CustomerRegistration("Barney", "Rubble", "barney@rubbles.rock", "+6412345678");
             //return new CustomerRegistration("Wilma", "Flintstone", "wilma@flintstones.net");
             //return new CustomerRegistration("Bambam", "Rubble", "bambam@rubbles.rock");
         }

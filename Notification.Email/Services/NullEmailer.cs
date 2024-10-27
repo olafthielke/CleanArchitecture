@@ -9,9 +9,9 @@ namespace Notification.Email.Services
     {
         public async Task Send(MailMessage email)
         {
-            // Do Nothing
+            // Only log to console
 
-            Debug.WriteLine($"Sending '{email.Subject}' to customer '{email.To[0]}'");
+            Debug.WriteLine($"\nSending '{email.Subject}' to email '{email.To[0]}'\n");
         }
     }
 }
