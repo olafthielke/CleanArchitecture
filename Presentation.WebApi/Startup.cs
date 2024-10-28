@@ -3,6 +3,7 @@ using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
 using BusinessLogic.UseCases;
+using Data.FileSystem;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -137,7 +138,9 @@ namespace Presentation.WebApi
         {
             //Configure_InMemoryDatabases(services);
 
-            Configure_PostgresDatabase(services);
+            Configure_JsonDataFiles(services);
+
+            //Configure_PostgresDatabase(services);
         }
 
         private static void Configure_InMemoryDatabases(IServiceCollection services)
@@ -151,6 +154,13 @@ namespace Presentation.WebApi
             var smsTemplate = new SmsTemplate(Templates.CustomerWelcome, "Hi. Thx for joining us, [[FirstName]]! ...");
             var smsTemplates = new InMemorySmsTemplateDatabase(smsTemplate);
             services.AddSingleton<ISmsTemplateRepository>(smsTemplates);
+        }
+
+        private void Configure_JsonDataFiles(IServiceCollection services)
+        {
+            services.AddSingleton<ICustomerRepository, CustomerJsonFile>();
+            services.AddSingleton<IEmailTemplateRepository, EmailTemplateJsonFile>();
+            services.AddSingleton<ISmsTemplateRepository, SmsTemplateJsonFile>();
         }
 
         private void Configure_PostgresDatabase(IServiceCollection services)
@@ -168,9 +178,9 @@ namespace Presentation.WebApi
         {
             //Configure_NullCustomerNotifier(services);
 
-            //Configure_CustomerEmailer(services);
+            Configure_CustomerEmailer(services);
 
-            Configure_CustomerSmsSender(services);
+            //Configure_CustomerSmsSender(services);
         }
 
         private static void Configure_NullCustomerNotifier(IServiceCollection services)

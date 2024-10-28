@@ -1,16 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
-
-namespace BusinessLogic.Services
+namespace Data.FileSystem
 {
-    public class JsonCustomerFile : ICustomerDatabase, ICustomerCache
+    public class CustomerJsonFile : ICustomerDatabase, ICustomerCache
     {
-        private const string CustomerFilePath = @"..\BusinessLogic\Services\Customers.json";
+        private const string CustomerFilePath = @"/Data/Customers.json";
 
         public async Task<Customer> GetCustomer(string emailAddress)
         {

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\Data.FileSystem\Data.FileSystem.csproj" />
     <ProjectReference Include="..\Data.Postgres\Data.Postgres.csproj" />
     <ProjectReference Include="..\Data.Proxy\Data.Proxy.csproj" />
     <ProjectReference Include="..\Data.Redis.Common\Data.Redis.Common.csproj" />
