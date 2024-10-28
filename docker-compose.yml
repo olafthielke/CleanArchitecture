@@ -3,6 +3,7 @@ name: clean-architecture
 services:
   webapi:
     image: ${DOCKER_REGISTRY-}webapi
+    container_name: webapi
     build:
       context: .
       dockerfile: Presentation.WebApi/Dockerfile

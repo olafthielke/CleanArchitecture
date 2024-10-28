@@ -1,8 +1,8 @@
-﻿using Notification.SMS.Interfaces;
-using Notification.SMS.Models;
-using Twilio;
+﻿using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using TwilioTypes = Twilio.Types;
+using Notification.SMS.Interfaces;
+using Notification.SMS.Models;
 
 namespace Notification.SMS.Twilio
 {
@@ -10,7 +10,7 @@ namespace Notification.SMS.Twilio
     {
         private TwilioConfiguration Config { get; } = config;
 
-        public async Task Send(SmsMessage message)
+        public virtual async Task Send(SmsMessage message)
         {
             TwilioClient.Init(Config.AccountSID, Config.AuthToken);
 

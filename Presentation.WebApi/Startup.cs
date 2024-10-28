@@ -23,7 +23,6 @@ using Notification.SMS.Interfaces;
 using Notification.SMS.Models;
 using Notification.SMS.Services;
 using Notification.SMS.Twilio;
-using Amazon.SimpleEmail.Model;
 
 namespace Presentation.WebApi
 {
@@ -183,9 +182,9 @@ namespace Presentation.WebApi
         {
             services.AddScoped<ICustomerNotifier, CustomerEmailer>();
 
-            Configure_EmailConfiguration(services);
-
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
+
+            Configure_EmailConfiguration(services);
 
             Configure_Emailer(services);
         }
@@ -249,18 +248,20 @@ namespace Presentation.WebApi
         {
             services.AddScoped<ICustomerNotifier, CustomerSmsSender>();
 
-            Configure_SmsConfiguration(services);
-
             services.AddScoped<IPlaceholderReplacer, PlaceholderReplacer>();
+
+            Configure_SmsConfiguration(services);
 
             Configure_SmsSender(services);
         }
 
         private void Configure_SmsConfiguration(IServiceCollection services)
         {
-            Configure_HardcodedSmsConfiguration(services);
+            //Configure_HardcodedSmsConfiguration(services);
 
             //Configure_DynamicSmsConfiguration(services);
+
+            Configure_DynamicWhatsAppConfiguration(services);
         }
 
         private static void Configure_HardcodedSmsConfiguration(IServiceCollection services)
@@ -279,13 +280,22 @@ namespace Presentation.WebApi
             services.AddSingleton(config);
         }
 
+        private void Configure_DynamicWhatsAppConfiguration(IServiceCollection services)
+        {
+            var config = new SmsConfiguration();
+
+            Configuration.Bind("WhatsApp", config);
+
+            services.AddSingleton(config);
+        }
+
         private void Configure_SmsSender(IServiceCollection services)
         {
             //Configure_NullSmsSender(services);
 
-            Configure_TwilioSmsSender(services);
+            //Configure_TwilioSmsSender(services);
 
-            //ConfigureOtherSmsSender();
+            Configure_TwilioWhatsAppSender(services);
         }
 
         private void Configure_NullSmsSender(IServiceCollection services)
@@ -297,7 +307,13 @@ namespace Presentation.WebApi
         {
             services.AddScoped<ISmsSender, TwilioSmsSender>();
 
-            //services.Configure<TwilioConfiguration>(Configuration.GetSection("Twilio"));
+            Configure_TwilioConfiguration(services);
+        }
+
+        private void Configure_TwilioWhatsAppSender(IServiceCollection services)
+        {
+            services.AddScoped<ISmsSender, TwilioWhatsAppSender>();
+
             Configure_TwilioConfiguration(services);
         }
 

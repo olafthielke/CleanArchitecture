@@ -8,6 +8,7 @@
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/customers</DockerServiceUrl>
     <DockerServiceName>presentation.webapi</DockerServiceName>
+    <DockerComposeProjectName>clean-architecture</DockerComposeProjectName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="dataset\docker-entrypoint-initdb.d\Customers.csv" />
