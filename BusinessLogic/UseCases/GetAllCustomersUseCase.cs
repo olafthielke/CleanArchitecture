@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 
-
 namespace BusinessLogic.UseCases
 {
     public class GetAllCustomersUseCase(ICustomerRepository repository) : IGetAllCustomersUseCase

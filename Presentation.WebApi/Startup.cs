@@ -1,25 +1,27 @@
-using System;
-using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
 using BusinessLogic.UseCases;
 using Data.FileSystem;
+using Data.Postgres;
+using Data.Proxy;
+using Data.Redis.Common;
+using Data.Redis.Common.Interfaces;
+using Data.Redis.Specific;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Notification.Common;
+using Notification.Common.Interfaces;
+using Notification.Common.Services;
 using Notification.Email.AWS;
 using Notification.Email.AWS.Interfaces;
 using Notification.Email.AWS.Services;
 using Notification.Email.Interfaces;
-using Notification.Email.Services;
-using Microsoft.EntityFrameworkCore;
-using Data.Postgres;
-using Notification.Common;
-using Notification.Common.Interfaces;
-using Notification.Common.Services;
 using Notification.Email.Models;
+using Notification.Email.Services;
 using Notification.SMS.Interfaces;
 using Notification.SMS.Models;
 using Notification.SMS.Services;
@@ -43,68 +45,6 @@ namespace Presentation.WebApi
             Configure_CustomerRepository(services);
 
             Configure_CustomerNotifier(services);
-
-
-            // Uncomment only one of the numbered and separated blocks to radically alter 
-            // the behaviour of the customer data persistence mechanisms, from a simple
-            // in-memory database, up to a Redis cache / SQL database combination.
-
-            // -----------------------------------------------------------------------------
-
-            //// 1. *** REPO: In-Memory DB ***
-            //ConfigureInMemoryDatabases(services);
-
-            // -----------------------------------------------------------------------------
-
-            //// 2. *** REPO: JSON File ***
-            //services.AddSingleton<ICustomerRepository, JsonCustomerFile>();
-
-            // -----------------------------------------------------------------------------
-
-            //// 3. *** REPO: SQL Server DB ***
-            //var connectionString = Configuration.GetConnectionString("SqlServer-Database");
-            //services.AddTransient<ISqlServerConfiguration>(s => new SqlServerConfiguration(connectionString));
-
-            //services.AddScoped<ICustomerRepository, SqlServerCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
-
-            //services.AddScoped<ISqlServerConfiguration, HardcodedSqlServerConfiguration>();
-
-            // -----------------------------------------------------------------------------
-
-            //// 4. *** CACHE: NullCache | DATABASE: In-Memory DB ***
-            //// REPO
-            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            //// CACHE: Null (as in, Don't Cache!)
-            //services.AddScoped<ICustomerCache, NullCustomerCache>();
-            //// DATABASE: In-Memory DB Only
-            //services.AddSingleton<ICustomerDatabase, InMemoryCustomerDatabase>();
-
-            // -----------------------------------------------------------------------------
-
-            //// 5. *** CACHE: In-Memory DB | DATABASE: JSON File ***
-            //// REPO
-            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            //// CACHE: In-Memory DB
-            //services.AddScoped<ICustomerCache, InMemoryCustomerDatabase>();
-            // DATABASE: JSON File
-            //services.AddSingleton<ICustomerDatabase, JsonCustomerFile>();
-
-            // -----------------------------------------------------------------------------
-
-            // 6. *** CACHE: Redis | DATABASE: SQL Server DB ***
-            //// REPO
-            //services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
-            //// CACHE: Redis
-            //services.AddScoped<ICustomerCache, RedisCustomerCache>();
-            //services.AddScoped<IRedisConnector, RedisConnector>();
-            //services.AddScoped<IRedisConfiguration, HardcodedRedisConfiguration>();
-            //// DATABASE: SQL Server
-            //services.AddScoped<ICustomerDatabase, SqlServerCustomerDatabase>();
-            //services.AddScoped<IEmailTemplateRepository, SqlServerEmailTemplateDatabase>();
-            //services.AddScoped<ISqlServerConfiguration, HardcodedSqlServerConfiguration>();
-
-            // -----------------------------------------------------------------------------
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -138,9 +78,11 @@ namespace Presentation.WebApi
         {
             //Configure_InMemoryDatabases(services);
 
-            Configure_JsonDataFiles(services);
+            //Configure_JsonDataFiles(services);
 
             //Configure_PostgresDatabase(services);
+
+            Configure_CacheAndDatabase(services);
         }
 
         private static void Configure_InMemoryDatabases(IServiceCollection services)
@@ -170,6 +112,55 @@ namespace Presentation.WebApi
             services.AddScoped<ICustomerRepository, PostgresCustomerDatabase>();
             services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
             services.AddScoped<ISmsTemplateRepository, PostgresSmsTemplateDatabase>();
+        }
+
+        private void Configure_PostgresDatabase_WhenUsedWithCache(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("Postgres-Database")));
+
+            services.AddScoped<ICustomerDatabase, PostgresCustomerDatabase>();
+            // ^^^ Registering against interface ICustomerDATABASE ^^^
+
+            services.AddScoped<IEmailTemplateRepository, PostgresEmailTemplateDatabase>();
+            services.AddScoped<ISmsTemplateRepository, PostgresSmsTemplateDatabase>();
+        }
+
+        private void Configure_CacheAndDatabase(IServiceCollection services)
+        {
+            services.AddScoped<ICustomerRepository, CachedCustomerRepository>();
+
+            Configure_Cache(services);
+
+            Configure_Database_WhenUseWithCache(services);
+        }
+
+        private void Configure_Database_WhenUseWithCache(IServiceCollection services)
+        {
+            //Configure_InMemoryDatabases_WhenUsedWithCache(services);
+
+            //Configure_JsonDataFiles_WhenUsedWithCache(services);
+
+            Configure_PostgresDatabase_WhenUsedWithCache(services);
+        }
+
+        private void Configure_Cache(IServiceCollection services)
+        {
+            //Configure_NullCache(services);
+
+            Configure_RedisCache(services);
+        }
+
+        private void Configure_NullCache(IServiceCollection services)
+        {
+            services.AddScoped<ICustomerCache, NullCustomerCache>();
+        }
+
+        private void Configure_RedisCache(IServiceCollection services)
+        {
+            var redisHost = Configuration.GetConnectionString("Redis-Cache");
+
+            services.AddScoped<ICustomerCache, RedisCustomerCache>();
+            services.AddScoped<IRedisConnector>(_ => new RedisConnector(redisHost));
         }
 
 

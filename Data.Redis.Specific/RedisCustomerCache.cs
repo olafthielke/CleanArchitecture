@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using BusinessLogic.Entities;
-using BusinessLogic.Interfaces;
 using Data.Redis.Common;
 using Data.Redis.Common.Interfaces;
+using BusinessLogic.Entities;
+using BusinessLogic.Interfaces;
 
 namespace Data.Redis.Specific
 {

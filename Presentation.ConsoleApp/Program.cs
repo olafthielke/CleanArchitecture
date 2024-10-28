@@ -58,8 +58,7 @@ namespace Presentation.ConsoleApp
 
         private static ICustomerCache SetupRedisCustomerCache()
         {
-            var config = new HardcodedRedisConfiguration();
-            var connector = new RedisConnector(config);
+            var connector = new RedisConnector("localhost");
             return new RedisCustomerCache(connector);
         }
 

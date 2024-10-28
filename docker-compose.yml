@@ -24,6 +24,13 @@ services:
     volumes:
       - ./dataset:/docker-entrypoint-initdb.d
 
+  redis-cache:
+    image: redis:latest
+    container_name: redis_cache
+    restart: always
+    ports:
+      - 6379:6379
+
   # sqlserver-database:
   #   image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
   #   container_name: sqlserver_database

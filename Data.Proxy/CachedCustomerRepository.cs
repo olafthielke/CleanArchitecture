@@ -5,17 +5,12 @@ using BusinessLogic.Interfaces;
 
 namespace Data.Proxy
 {
-    public class CachedCustomerRepository : ICustomerRepository
+    public class CachedCustomerRepository(
+        ICustomerDatabase database,
+        ICustomerCache cache) : ICustomerRepository
     {
-        private ICustomerDatabase Database { get; }
-        private ICustomerCache Cache { get; }
-
-        public CachedCustomerRepository(ICustomerDatabase database,
-            ICustomerCache cache)
-        {
-            Cache = cache;
-            Database = database;
-        }
+        private ICustomerDatabase Database { get; } = database;
+        private ICustomerCache Cache { get; } = cache;
 
         public async Task<Customer> GetCustomer(string emailAddress)
         {
